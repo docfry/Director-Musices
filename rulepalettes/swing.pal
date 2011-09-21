@@ -1,0 +1,12 @@
+(in-package "DM")
+(set-dm-var 'all-rules '(
+(inegales 0.0)
+(swing 0.0)
+(ensemble-swing 1.0 :drums "Drums" :bass "Bass" :solo "Melody")
+(duration-contrast-art-dr 1.5)
+(offbeat-sl 1.0)
+(punctuation 1.2 :dur 0 :duroff 1 :markphlevel7 nil)
+(normalize-sl nil)
+(normalize-dr nil)
+))
+(set-dm-var 'sync-rule-list '((no-sync nil) (melodic-sync t)))
