@@ -96,6 +96,7 @@
 ; applies a list of rules and computes the deviations from each
 ; makes a sync track from which all tempo deviations are stored
 ; fixed problem with nsl
+#|
 (defun pdm-apply-rules (rulelist)
   (let (vec)
     ;(make-simple-syncmel)
@@ -150,6 +151,7 @@
       ;(print "vector ok")
       (reset-music)
       )))
+|#
 
 (defun pdm-apply-rules (rulelist)
   (let (vec)
@@ -308,7 +310,7 @@
         (incf abstime (this 'ndr))
         )))
     (sort bigl 'compare)))
-|#
+
 (defun pdm-make-playlist ()
   (let ((abstime 0)(bigl '())(chan 1) (track-inc 0.0))
     (newr bigl (list abstime "FILETYPE" "pDM_score_file")) ;file type
@@ -355,6 +357,7 @@
         (incf abstime (this 'ndr))
         )))
     (sort bigl 'compare)))
+|#
 
 ;;include DSL and DART for each note in a chord (don't like it!)
 (defun pdm-make-playlist ()

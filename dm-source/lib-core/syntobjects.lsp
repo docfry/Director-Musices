@@ -36,6 +36,7 @@
         ("Kontakt2-wind" . synt-Kontakt2-wind)
         ("Technics-SX-P30" . synt-Technics-SX-P30)
         ("Yamaha-Clavinova-CLP370" . synt-Yamaha-Clavinova-CLP370)
+        ("Yamaha-Disklavier-2" . synt-Yamaha-Disklavier-2)
         ("Proteus" . synt-Proteus)
         ("SampleCell" . synt-SampleCell)
         ("S3000" . synt-S3000)
@@ -60,6 +61,7 @@
         "Kontakt2-wind"
         "Technics-SX-P30"
         "Yamaha-Clavinova-CLP370"
+        "Yamaha-Disklavier-2"
         "Proteus"
         "SampleCell"
         "S3000"
@@ -1309,6 +1311,34 @@
 (defun foo (vol) (round  (+  (* 0.0797 (expt vol 2)) 
                          (* 5.9317 vol) 
                          127.0)))
+ |#
+
+;----------- Yamaha Disklavier II (Bresin, Goebl) -----------------------------------------------------
+;; Measured from Disklavier II in Uppsalla
+;; Goebl, W., & Bresin, R. (2003). Measurement and reproduction accuracy of computer-controlled grand pianos.
+;; Journal of the Acoustical Society of America, 114(4), 2273-2283.
+
+(defclass synt-yamaha-disklavier-2 (synt) ())
+
+(defun synt-yamaha-disklavier-2 () 
+   (make-instance 'synt-yamaha-disklavier-2 :program-list *program-list-general-midi*))
+
+(defmethod print-object ((self synt-yamaha-disklavier-2) stream)
+  (format stream "(synt-yamaha-disklavier-2)") )
+
+;;y=0.0423x2 + 2.7998x + 63.836s
+(defmethod sl-to-vel ((synt synt-yamaha-disklavier-2) sl)
+  (round (+ (* 0.0423 (expt sl 2)) 
+            (* 2.7998 sl) 
+            63.836) ))
+
+;; volume not implemented/measured
+
+#| for testing
+(defun foo (sl)
+  (round (+ (* 0.0423 (expt sl 2)) 
+            (* 2.7998 sl) 
+            63.836) ) )
  |#
 
 ;----------- Generator software synthesizer -----------------------------------------------------

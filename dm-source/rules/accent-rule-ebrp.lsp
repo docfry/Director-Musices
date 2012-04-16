@@ -15,8 +15,202 @@
 ;;101213/af added accent-dr, integrated them in the rule system with support for polyphony, 
 ;; multiple rules at the same time
 ;; a general quantity parameter
+;;111111/af new version again wih individual rules for each accent
+;;120313/af adjusted accent quantities
+;;120314/af added width scaling
+
 
 (in-package :dm)
+
+
+;;;---- new version with individual rules for each accent ------
+;; each rules expect a (for now) manual annotation of an accent mark (accent-c, accent-h, accent-m)
+;; together with a salience number (from 1-5)
+;; quant  the general quantity of the rule, default 1
+;; curve  :linear :linear :quadratic :cubic :exponential :cosine :gaussian :hand-gesture
+;; amp    scaling parameter for sound level, default 1 (no scaling)
+;; dur    scaling parameter for duration (IOI), default 1 (no scaling)
+;; width  scaling parameter for width, default 1 (no scaling)
+
+(defun melodic-contour-accent (quant &key (curve :linear) (amp 1) (dur 1) (width 1))
+  (each-note-if
+   (this 'accent-c)
+   (then
+    (let* ((sal (this 'accent-c))
+           (sal2 (+ (* 0.625 sal) 1.875))
+           (w1 (* width 250.0 sal2))
+           (w2 (* width 250.0 sal2))
+           ;(quant-sl (* quant amp 1 sal))
+           ;(quant-dr (* quant dur 0.25 0.5 0.2 sal))
+           (quant-sl (* quant amp 2 sal2))
+           (quant-dr (* quant dur 0.05 sal2))
+          )
+     ;(set-this 'accent-sl (list w1 w2 quant-sl  curve curve))
+      ;(set-this 'accent-dr (list w1 w2 quant-dr  curve curve))
+      (accent-apply-sl *i* w1 w2 quant-sl curve curve)
+      (accent-apply-dr *i* w1 w2 quant-dr curve curve)
+      ))))
+
+(defun harmonic-accent (quant &key (curve :linear) (amp 1) (dur 1) (width 1))
+  (each-note-if
+   (this 'accent-h)
+   (then
+    (let* ((sal (this 'accent-h))
+           (sal2 (+ (* 0.625 sal) 1.875))
+           (w1 (* width 250.0 sal2))
+           (w2 (* width 250.0 sal2))
+           ;(quant-sl (* quant amp 1 sal))
+           ;(quant-dr (* quant dur 0.25 0.5 0.2 sal))
+           (quant-sl (* quant amp 2 sal2))
+           (quant-dr (* quant dur 0.05 sal2))
+          )
+     ;(set-this 'accent-sl (list w1 w2 quant-sl  curve curve))
+      ;(set-this 'accent-dr (list w1 w2 quant-dr  curve curve))
+      (accent-apply-sl *i* w1 w2 quant-sl curve curve)
+      (accent-apply-dr *i* w1 w2 quant-dr curve curve)
+      ))))
+
+(defun metrical-accent (quant &key (curve :linear) (amp 1) (dur 1) (width 1))
+  (each-note-if
+   (this 'accent-m)
+   (then
+    (let* ((sal (this 'accent-m))
+           (sal2 (+ (* 0.625 sal) 1.875))
+           (w1 (* width 250.0 sal2))
+           (w2 (* width 250.0 sal2))
+           ;(quant-sl (* quant amp 1 sal))
+           ;(quant-dr (* quant dur 0.25 0.5 0.2 sal))
+           (quant-sl (* quant amp 2 sal2))
+           (quant-dr (* quant dur 0.05 sal2))
+          )
+     ;(set-this 'accent-sl (list w1 w2 quant-sl  curve curve))
+      ;(set-this 'accent-dr (list w1 w2 quant-dr  curve curve))
+      (accent-apply-sl *i* w1 w2 quant-sl curve curve)
+      (accent-apply-dr *i* w1 w2 quant-dr curve curve)
+      ))))
+
+;; Applied the sound level variations on the notes
+;; first make 'dsl and then add that to 'sl
+;; with added floats marking time in ms
+;; fractional time not yet implemented
+(defun accent-apply-sl (inote ext-left ext-right peak curve-left curve-right)
+  (let ((istart (if (float ext-left)
+                   (i?ndr-before-index inote ext-left)
+                  (max (- note-number ext-left) 0) ))
+        (iend (if (float ext-right)
+                   (i?ndr-after-index inote ext-right)
+                (min (+ note-number ext-left) (i?last)) ))
+        fun-left fun-right power-left power-right )
+    ;translate from keywords to function names and power
+    (multiple-value-setq (fun-left power-left) (accents-translate-curv-name-left curve-left))
+    (multiple-value-setq  (fun-right power-right) (accents-translate-curv-name-right curve-right))
+    (iset-ramp-x2-decimal-last istart inote 0.0 0.0 0.0 peak 'dsl power-left fun-left fun-left)
+    (iset-ramp-x2-decimal-last inote iend 0.0 0.0 peak 0.0 'dsl power-right fun-right fun-right)
+    ;transfer dsl to sl
+    (loop for i from istart to iend do
+          (if (iget i 'sl) (iadd i  'sl (iget i 'dsl)))
+          (rem-var (nth i *v*) 'dsl)
+          )))
+
+;; with max instead of add so that envelopes don't add up
+;; not really compatible with the traditional rule application but works well with the new rule interaction stuff
+;; will probably not work with negative values as well
+;; 120327/af
+(defun accent-apply-sl (inote ext-left ext-right peak curve-left curve-right)
+  (let ((istart (if (float ext-left)
+                   (i?ndr-before-index inote ext-left)
+                  (max (- note-number ext-left) 0) ))
+        (iend (if (float ext-right)
+                   (i?ndr-after-index inote ext-right)
+                (min (+ note-number ext-left) (i?last)) ))
+        fun-left fun-right power-left power-right )
+    ;translate from keywords to function names and power
+    (multiple-value-setq (fun-left power-left) (accents-translate-curv-name-left curve-left))
+    (multiple-value-setq  (fun-right power-right) (accents-translate-curv-name-right curve-right))
+    (iset-ramp-x2-decimal-last istart inote 0.0 0.0 0.0 peak 'dsl power-left fun-left fun-left)
+    (iset-ramp-x2-decimal-last inote iend 0.0 0.0 peak 0.0 'dsl power-right fun-right fun-right)
+    ;transfer dsl to sl
+    (loop for i from istart to iend do
+          (if (iget i 'sl) 
+              (iset i  'sl (max (iget i 'sl) (iget i 'dsl))) )
+          (rem-var (nth i *v*) 'dsl)
+          )))
+
+;; same for dr
+(defun accent-apply-dr (inote ext-left ext-right peak curve-left curve-right)
+  (let ((istart (if (float ext-left)
+                   (i?ndr-before-index inote ext-left)
+                  (max (- note-number ext-left) 0) ))
+        (iend (if (float ext-right)
+                   (i?ndr-after-index inote ext-right)
+                (min (+ note-number ext-left) (i?last)) ))
+        fun-left fun-right power-left power-right )
+    ;translate from keywords to function names and power
+    (multiple-value-setq (fun-left power-left) (accents-translate-curv-name-left curve-left))
+    (multiple-value-setq  (fun-right power-right) (accents-translate-curv-name-right curve-right))
+    (iset-ramp-x2-decimal-last istart inote 0.0 0.0 0.0 peak 'ddr power-left fun-left fun-left)
+    (iset-ramp-x2-decimal-last inote iend 0.0 0.0 peak 0.0 'ddr power-right fun-right fun-right)
+    (loop for i from istart to iend do
+        (iset i  'dr (* (iget i 'dr) (1+ (iget i 'ddr))))
+        (rem-var (nth i *v*) 'ddr)
+        )))
+
+;; with max instead of add so that envelopes don't add up
+;; not really compatible with the traditional rule application but works well with the new rule interaction stuff
+;; 120327/af
+(defun accent-apply-dr (inote ext-left ext-right peak curve-left curve-right)
+  (let ((istart (if (float ext-left)
+                   (i?ndr-before-index inote ext-left)
+                  (max (- note-number ext-left) 0) ))
+        (iend (if (float ext-right)
+                   (i?ndr-after-index inote ext-right)
+                (min (+ note-number ext-left) (i?last)) ))
+        fun-left fun-right power-left power-right )
+    ;translate from keywords to function names and power
+    (multiple-value-setq (fun-left power-left) (accents-translate-curv-name-left curve-left))
+    (multiple-value-setq  (fun-right power-right) (accents-translate-curv-name-right curve-right))
+    (iset-ramp-x2-decimal-last istart inote 0.0 0.0 0.0 peak 'ddr power-left fun-left fun-left)
+    (iset-ramp-x2-decimal-last inote iend 0.0 0.0 peak 0.0 'ddr power-right fun-right fun-right)
+    (loop for i from istart to iend do
+        (iset i  'dr (max (iget i 'dr) (* (iget i 'ndr) (1+ (iget i 'ddr)))))
+        (rem-var (nth i *v*) 'ddr)
+        )))
+
+
+;;;;------------------------------------------------------------------------
+
+#|
+;;; main rule function
+(defun accent-main (quant)
+  (rem-all 'accent-sl)
+  (rem-all 'accent-dr)
+  (accent-translate-marks quant)
+  (accent-main-sl quant)
+  (accent-main-dr quant)
+  )
+
+;; work to do:
+;; 1. adjust individual levels and widths for each kind of mark (salience 1-5)
+;; 2. adjust the combination
+(defun accent-translate-marks (quant)
+  ;(print "hej")
+  (each-note-if
+   (or (this 'accent-c)(this 'accent-h)(this 'accent-m) )
+   (then
+   ;(print-ll " accent c " (this 'accent-c) " accent h " (this 'accent-h) " accent m " (this 'accent-m))
+   (let ((w1 0.0)(w2 0.0)
+         (sal 0.0)
+         (sal-c (or (this 'accent-c) 0.0)) (sal-h (or (this 'accent-h) 0.0)) (sal-m (or (this 'accent-m) 0.0)) )
+     (setq sal (sqrt (+ (expt sal-c 2) (expt sal-h 2) (expt sal-m 2))))  ;weight the combination of several
+     ;(print-ll " sal c " sal-c " sal-h " sal-h " sal m " sal-m )
+     (setq w1 (* 250.0 sal))
+     (setq w2 (* 250.0 sal))
+     (set-this 'accent-sl (list w1 w2 (* 0.25 sal)  :linear :linear))
+     (set-this 'accent-dr (list w1 w2 (* 0.5 0.25 sal)  :linear :linear))
+     ))))
+     
+
+;;;----- apply sound level accents from specific accent marks in the score ---------
 
 ;;apply all marked accents in the score
 ;; default 4 dB for quant or peak = 1
@@ -35,8 +229,10 @@
       (apply-accent-sl *i* left right (* quant peak 4.0) function-left function-right power-left power-right)
       ))))
 
+   
 ;; Applied the sound level variations on the notes
 ;; first make 'dsl and then add that to 'sl
+#|
 (defun apply-accent-sl (note-number ext-left ext-right peak fun-left fun-right power-left power-right)
   (iset-ramp-x2-decimal-last (- note-number ext-left) note-number 0.0 0.0 0.0 peak 'dsl power-left fun-left fun-left)
   (iset-ramp-x2-decimal-last note-number (+ note-number ext-right) 0.0 0.0 peak 0.0 'dsl power-right fun-right fun-right)
@@ -44,7 +240,27 @@
         (if (iget i 'sl) (iadd i  'sl (iget i 'dsl)))
         (rem-var (nth i *v*) 'dsl)
         ))
+|#
 
+;; with added floats marking time in ms
+;; fractional time not yet implemented
+(defun apply-accent-sl (inote ext-left ext-right peak fun-left fun-right power-left power-right)
+  (let ((istart (if (float ext-left)
+                   (i?ndr-before-index inote ext-left)
+                  (max (- note-number ext-left) 0) ))
+        (iend (if (float ext-right)
+                   (i?ndr-after-index inote ext-right)
+                (min (+ note-number ext-left) (i?last)) ))
+        )
+  ;(print-ll istart " " inote " " iend)
+  (iset-ramp-x2-decimal-last istart inote 0.0 0.0 0.0 peak 'dsl power-left fun-left fun-left)
+  (iset-ramp-x2-decimal-last inote iend 0.0 0.0 peak 0.0 'dsl power-right fun-right fun-right)
+  (loop for i from istart to iend do
+        (if (iget i 'sl) (iadd i  'sl (iget i 'dsl)))
+        (rem-var (nth i *v*) 'dsl)
+        )))
+
+;;;----- apply ioi (duration) accents from specific accent marks in the score ---------
 
 ;;apply all marked accents in the score for dr
 ;; default 20% for quant or peak = 1
@@ -73,6 +289,27 @@
         (rem-var (nth i *v*) 'ddr)
         ))
 
+;; with floats marking time in ms
+;; fractional time not yet implemented
+(defun apply-accent-dr (inote ext-left ext-right peak fun-left fun-right power-left power-right)
+  (let ((istart (if (float ext-left)
+                   (i?ndr-before-index inote ext-left)
+                  (max (- note-number ext-left) 0) ))
+        (iend (if (float ext-right)
+                   (i?ndr-after-index inote ext-right)
+                (min (+ note-number ext-left) (i?last)) ))
+        )
+  ;(print-ll istart " " inote " " iend)
+  (iset-ramp-x2-decimal-last istart inote 0.0 0.0 0.0 peak 'ddr power-left fun-left fun-left)
+  (iset-ramp-x2-decimal-last inote iend 0.0 0.0 peak 0.0 'ddr power-right fun-right fun-right)
+  (loop for i from istart to iend do
+        (iset i  'dr (* (iget i 'dr) (1+ (iget i 'ddr))))
+        (rem-var (nth i *v*) 'ddr)
+        )))
+
+|#
+
+;;----utility functions---------------
 
 ;;translates the names from the drop down menu to function names and power values
 (defun accents-translate-curv-name-right (keyword)
@@ -97,6 +334,31 @@
     (when (equal :gaussian keyword) (setq function 'gauss-fn-dec))
     (when (equal :hand-gesture keyword) (setq function 'hand-gesture-fn-dec))
     (values function power)
+    ))
+
+;; get index ndrtarget ms before the note iend
+;; returns index and remaining ndr
+;; if it reach the beginning it returns the start pos (0 0)
+(defun i?ndr-before-index (ipos ndrtarget)
+  (let ((i ipos) (ndrtot 0))
+    (while (and (< ndrtot ndrtarget) (> i 0))
+      (decf i)
+      (incf ndrtot (iget i 'ndr)) )
+      (values i (if (<= (- ndrtot ndrtarget) 0) 0 (- ndrtot ndrtarget)))
+    ))
+
+;;same after
+;; if it reach the end it returns the last pos (<last index> <ndr last note>)
+(defun i?ndr-after-index (ipos ndrtarget)
+  (let ((i ipos) (ndrtot 0) (ilast (i?last)))
+    (while (and (< (+ ndrtot (iget i 'ndr)) ndrtarget) (< i ilast))
+      (incf ndrtot (iget i 'ndr))
+      (incf i)
+      )
+    (values i (if (= i ilast) 
+                  (min (iget i 'ndr) (- ndrtarget ndrtot))
+                (- ndrtarget ndrtot)
+                ))
     ))
 
 
