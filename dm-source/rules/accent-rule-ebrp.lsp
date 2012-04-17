@@ -18,6 +18,7 @@
 ;;111111/af new version again wih individual rules for each accent
 ;;120313/af adjusted accent quantities
 ;;120314/af added width scaling
+;;120417/af added dynamic-accent
 
 
 (in-package :dm)
@@ -31,6 +32,28 @@
 ;; amp    scaling parameter for sound level, default 1 (no scaling)
 ;; dur    scaling parameter for duration (IOI), default 1 (no scaling)
 ;; width  scaling parameter for width, default 1 (no scaling)
+
+;new accent only for dynamic variation
+;tempo variation possible if the :dur keyword is used with a value greater than 0
+;tag in the score: accent-d
+(defun dynamic-accent (quant &key (curve :linear) (amp 1) (dur 0) (width 1))
+  (each-note-if
+   (this 'accent-d)
+   (then
+    (let* ((sal (this 'accent-d))
+           (sal2 (+ (* 0.625 sal) 1.875))
+           (w1 (* width 250.0 sal2))
+           (w2 (* width 250.0 sal2))
+           ;(quant-sl (* quant amp 1 sal))
+           ;(quant-dr (* quant dur 0.25 0.5 0.2 sal))
+           (quant-sl (* quant amp 2 sal2))
+           (quant-dr (* quant dur 0.05 sal2))
+          )
+     ;(set-this 'accent-sl (list w1 w2 quant-sl  curve curve))
+      ;(set-this 'accent-dr (list w1 w2 quant-dr  curve curve))
+      (accent-apply-sl *i* w1 w2 quant-sl curve curve)
+      (accent-apply-dr *i* w1 w2 quant-dr curve curve)
+      ))))
 
 (defun melodic-contour-accent (quant &key (curve :linear) (amp 1) (dur 1) (width 1))
   (each-note-if
