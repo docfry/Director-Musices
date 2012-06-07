@@ -35,6 +35,7 @@
 ;;2006-08-17/af chasing first program change to track var
 ;;;061003/af added bank select
 ;;;061018/af added reverb and pan
+;;;120607/af removed list of fractions to be compatible with clj-dm
 
 
 (in-package "DM")
@@ -48,7 +49,7 @@
 ;(setq *mf-debug-info* t)    
 
 (defvar *guess-notevalues-p*)            ;; When set true, note values will be estimated
-(setq *guess-notevalues-p* t)    
+(setq *guess-notevalues-p* t)    ;; nil better for clj - it doesn't work that well anyway (120607/af)
 
 
 
@@ -941,6 +942,8 @@
        (setq notev (midifile-get-notevalue-quant 
                     (this 'absticks) (this 'ndrticks) (* division 2) )))
       )
+     (print notev)
+     (if (> (length notev) 1) (setq notev (list (apply #'+ notev)))) ;add all fractions to one -adaptation to clj-dm (120607/af)
      (set-this 'n (cons 
                    (if (this 'rest) '() (f0-to-toneoctave (this 'f0)))
                    notev ))
