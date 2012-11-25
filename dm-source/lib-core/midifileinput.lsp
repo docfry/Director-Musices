@@ -276,7 +276,7 @@
         (quant-incr3 (* 4 (division *active-score*)
                         (get-dm-var 'midifile-input-quantize-triplet-notevalues)))
         (add 1000))
-    (print-ll "quant-incr " quant-incr "  quant-incr3 " quant-incr3)
+    ;(print-ll "quant-incr " quant-incr "  quant-incr3 " quant-incr3)
     (each-segment-if
      (this 'absticks)
      (then
@@ -942,7 +942,7 @@
        (setq notev (midifile-get-notevalue-quant 
                     (this 'absticks) (this 'ndrticks) (* division 2) )))
       )
-     (print notev)
+     ;(print notev)
      (if (> (length notev) 1) (setq notev (list (apply #'+ notev)))) ;add all fractions to one -adaptation to clj-dm (120607/af)
      (set-this 'n (cons 
                    (if (this 'rest) '() (f0-to-toneoctave (this 'f0)))

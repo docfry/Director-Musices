@@ -200,7 +200,7 @@
     (excl:run-shell-command 
      ;(concatenate 'string "\"C:\\Program Files\\Java\\jre6\\bin\\java\" -jar C:\\af\\simip-4-standalone.jar 2 " file)
      ;;second argument gives midi device number (from zero)
-     (concatenate 'string "\"C:\\Program Files\\Java\\jre6\\bin\\java\" -jar C:\\Nobackup\\afriberg\\simip-4-standalone.jar 2 " file)
+     (concatenate 'string "\"C:\\Program Files\\Java\\jre7\\bin\\java\" -jar C:\\Nobackup\\afriberg\\simip-4-standalone.jar 3 " file)
      :wait nil)
     ))
 
@@ -219,7 +219,7 @@
     ;(excl:run-shell-command (concatenate 'string "C:\\Program Files\\Windows Media Player\\wmplayer " file) :wait nil)
     (excl:run-shell-command 
      ;;second argument gives midi device number (from zero)
-     (concatenate 'string "\"C:\\Program Files\\Java\\jre6\\bin\\java\" -jar C:\\Nobackup\\afriberg\\simip-4-standalone.jar 2 " file)
+     (concatenate 'string "\"C:\\Program Files\\Java\\jre7\\bin\\java\" -jar C:\\Nobackup\\afriberg\\simip-4-standalone.jar 3 " file)
      :wait nil)
     ))
 
@@ -239,7 +239,7 @@
     ;(excl:run-shell-command (concatenate 'string "C:\\Program Files\\Windows Media Player\\wmplayer " file) :wait nil)
     (excl:run-shell-command 
      ;;second argument gives midi device number (from zero)
-     (concatenate 'string "\"C:\\Program Files\\Java\\jre6\\bin\\java\" -jar C:\\Nobackup\\afriberg\\simip-4-standalone.jar 2 " file)
+     (concatenate 'string "\"C:\\Program Files\\Java\\jre7\\bin\\java\" -jar C:\\Nobackup\\afriberg\\simip-4-standalone.jar 3 " file)
      :wait nil)
     )))
 

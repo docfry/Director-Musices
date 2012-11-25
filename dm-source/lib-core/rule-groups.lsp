@@ -190,6 +190,7 @@
 
 ;main function using file path input
 ;handles mono/poly automatic
+;c interaction parameter, c=1 no interaction, c=2 quadratic, etc
 (defun rule-interaction-apply-rules-sync (rulelist c)
   (let ((polyp (if (> (length (track-list *active-score*)) 1) t nil))) ;true if polyphonic
     (if polyp (make-simple-syncmel))

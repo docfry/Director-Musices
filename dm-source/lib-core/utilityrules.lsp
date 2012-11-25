@@ -979,14 +979,18 @@
      (print-ll "nofnotes " nofnotes " drtot " drtot " nps " (* (/ nofnotes drtot) 1000.0))
      )))
 
+
 ;compute for all tracks including sync track
 ;works only for ndr
+;probably used for cortex 2011 paper (?)
 (defun print-nps-all-tracks-sync-ndr ()
   (add-one-track *active-score* (sync-make-mel))
   (print-nps-all-tracks-ndr)
   (remove-one-track *active-score* (1- (length (track-list *active-score*))))
   )
-   
+
+
+
 ;---------------------------
 
 ;mark duration deviation for each bar
