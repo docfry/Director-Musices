@@ -19,6 +19,7 @@
 ;; 061003/af added bank select
 ;; 061018/af added reverb and pan
 ;; 110416/af added Yamaha Clavinova CLP-370, all synt def now only in this file
+;; 121202/af added Yamaha P90
 
 (in-package :dm)
 
@@ -37,14 +38,15 @@
         ("Technics-SX-P30" . synt-Technics-SX-P30)
         ("Yamaha-Clavinova-CLP370" . synt-Yamaha-Clavinova-CLP370)
         ("Yamaha-Disklavier-2" . synt-Yamaha-Disklavier-2)
+        ("Yamaha-P90" . synt-Yamaha-P90)       
         ("Proteus" . synt-Proteus)
-        ("SampleCell" . synt-SampleCell)
-        ("S3000" . synt-S3000)
-        ("FZ1" . synt-FZ1)
-        ("fb01" . synt-fb01)
-        ("dx21" . synt-dx21)
-        ("Musse" . synt-Musse)
-        ("Generator" . synt-Generator)
+        ;("SampleCell" . synt-SampleCell)
+        ;("S3000" . synt-S3000)
+        ;("FZ1" . synt-FZ1)
+        ;("fb01" . synt-fb01)
+        ;("dx21" . synt-dx21)
+        ;("Musse" . synt-Musse)
+        ;("Generator" . synt-Generator)
         ))
 
 ;;used for defining menu items in music dialog
@@ -62,14 +64,15 @@
         "Technics-SX-P30"
         "Yamaha-Clavinova-CLP370"
         "Yamaha-Disklavier-2"
+        "Yamaha-P90"
         "Proteus"
-        "SampleCell"
-        "S3000"
-        "FZ1"
-        "fb01"
-        "dx21"
-        "Musse"
-        "Generator"
+        ;"SampleCell"
+        ;"S3000"
+        ;"FZ1"
+        ;"fb01"
+        ;"dx21"
+        ;"Musse"
+        ;"Generator"
         ))
 
 (defun synth-name-to-symbol (name)
@@ -1312,6 +1315,49 @@
                          (* 5.9317 vol) 
                          127.0)))
  |#
+
+;----------- Yamaha P90 -----------------------------------------------------
+
+(defclass synt-yamaha-P90 (synt) ())
+
+(defun synt-yamaha-P90 () 
+   (make-instance 'synt-yamaha-P90 :program-list *program-list-general-midi*))
+
+(defmethod print-object ((self synt-yamaha-P90) stream)
+  (format stream "(synt-yamaha-P90)") )
+
+;;y = 0.0554x2 + 3.3468x + 63.927
+(defmethod sl-to-vel ((synt synt-yamaha-P90) sl)
+  (round (+ (* 0.0554 (expt sl 2)) 
+            (* 3.3468 sl) 
+            64.0) ))
+
+;; y = 0.002x3 + 0.1802x2 + 7.1447x + 126.53
+(defmethod set-vol ((synt synt-yamaha-P90) vol time)
+   (setq vol (round  (+  (* 0.002 (expt vol 3))
+                         (* 0.1802 (expt vol 2)) 
+                         (* 7.1447 vol) 
+                         127.0)))
+   (midi-write-list 
+     (list (logior #xB0 (1- (channel synt)))
+       7                     
+       (cond
+           ;((< vol 0) (warn "synt-yamaha-P90 Underflow in volume") 0)
+           ((> vol 127) (warn "synt-yamaha-P90 Overflow in volume") 127)
+           (t vol) ))
+     time ))
+
+#| for testing
+(defun foo (sl)
+  (round (+ (* 0.0554 (expt sl 2)) 
+            (* 3.3468 sl) 
+            64.0) ) )
+(defun foo (vol) (round  (+  (*  0.002 (expt vol 3))
+                             (* 0.1802 (expt vol 2)) 
+                         (* 7.1447 vol) 
+                         127.0)))
+ |#
+
 
 ;----------- Yamaha Disklavier II (Bresin, Goebl) -----------------------------------------------------
 ;; Measured from Disklavier II in Uppsalla

@@ -2,6 +2,8 @@
 # lisp stuff #
 *.xfasl
 *.fasl
+*.lsp~
+
 
 # OS generated files #
 ######################
