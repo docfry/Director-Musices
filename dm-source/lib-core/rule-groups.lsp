@@ -69,7 +69,6 @@
     (dolist (rule rule-list)
       (apply (car rule) (cdr rule)) )))
 
-#+(or :mcl :lispworks)
 (defun rule-apply-list (rule-list)
   (dolist (rule rule-list)
     (if (get-dm-var 'verbose-i/o) (print rule))
@@ -413,7 +412,7 @@
       "MozEssdur"
       "Ichtraumte"
       "Brahms"
-      "HŠndel"
+      "Hï¿½ndel"
       "Mazurka" 
       "Mozdmkvart"
       "Ofullborda"
