@@ -42,7 +42,6 @@
     ,@body ))
 |#
 
-#+(or :mcl :lispworks)
 (defmacro while (test &rest body)
  `(loop while ,test do ,@body) )
 
@@ -54,8 +53,6 @@
     ,@body ))
 |#
 
-
-#+(or :mcl :lispworks)
 (defmacro until (test &rest body)
  `(loop until ,test do ,@body) )
 
