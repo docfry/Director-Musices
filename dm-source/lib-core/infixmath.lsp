@@ -9,6 +9,8 @@
 ;; ****************************************
 
 (defpackage :infix
+  (:use :common-lisp)
+  (:export :inf-to-pre)
    #+mcl (:use :common-lisp :ccl)
    #+(and :mswindows :allegro) (:use :cg :cl :excl)
    #+:lispworks (:add-use-defaults t) 
@@ -19,8 +21,10 @@
 ;;   DM::INFIX
 ;; -------------
 ;;
-(defmacro dm::infix (list)
-  `(,@(inf-to-pre list)) )
+(in-package :dm)
+(defmacro infix (list)
+  `(,@(infix:inf-to-pre list)) )
+(in-package :infix)
 
 ;(defun foo ()(let ((dr 2)(i 3)) (infix (-19 / (sqrt dr) - 0.5))))
 
