@@ -42,6 +42,7 @@
     ,@body ))
 |#
 
+#-:allegro
 (defmacro while (test &rest body)
  `(loop while ,test do ,@body) )
 
@@ -53,6 +54,7 @@
     ,@body ))
 |#
 
+#-:allegro
 (defmacro until (test &rest body)
  `(loop until ,test do ,@body) )
 
