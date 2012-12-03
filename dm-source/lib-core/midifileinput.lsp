@@ -218,16 +218,6 @@
   (rem-all 'ndrticks)
   )
 
-#|
-(defun midifile-mark-absticks ()
-   (each-track
-     (let ((absticks 0))
-        (each-segment
-          (incf absticks (delta-time *this-segment*))
-          (set-this 'absticks absticks)
-         ))))
-|#
-
 ;;delta-time = absticks
 (defun midifile-mark-absticks ()
         (each-segment
@@ -568,7 +558,7 @@
              ))))
    )
    
-;convert key from midifile format to Dm format
+;convert key from midifile format to DM format
 ;fixed "negative values"
 (defun midifile-timesignature-to-key (sf mi)
    ;(print-ll sf "  " mi)
@@ -597,7 +587,6 @@
                 (t (warn (format nil "not valid key: ~A" sf))) ))
     (t (warn (format nil "not valid modus: ~A" mi))) ))
 
-
 (defun midifile-timesignature-to-modus (mi)
    (cond 
          ((= mi 1) ;minor
@@ -606,8 +595,6 @@
           "maj")
          (t (warn (format nil "not valid modus: ~A" mi)))
          ))
-
-
 
 ;;remove everything but notes and empty tracks
 (defun midifile-cleanup ()

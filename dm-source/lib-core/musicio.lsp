@@ -407,23 +407,12 @@
 ;; (var-list --> the segment, a list of sub lists)
 ;; then alist-to-list remove the extra parenthesys
 
-
 ;; ---------------------
 ;;   PRINT-MUSIC-ROUND
 ;; ---------------------
 ;;
 ;; print all properties with float's rounded
 ;;
-;;; (defun print-music-round (&optional ofile)
-;;;    (each-track
-;;;      (print (trackname (nth *i* *v*)) ofile)
-;;;      (each-segment
-;;;        (let ((pl (alist-to-list (var-list (nth *i* *v*))))
-;;;              (plr))
-;;;           (dolist (a pl)
-;;;              (setq plr (append plr (list (if (floatp a) (round a) a)))) )
-;;;           (print plr ofile)
-;;;           ))))
 
 (defun print-music-round (&optional ofile)
    (each-track

@@ -8,8 +8,7 @@
 ;;2004-09-21/af added  nsl support in reset-music function - other functions should be fixed as well
 ;;2006-02-15/af added  voice track init
 ;;120607/af new notation version with dots and tuples allowed in fraction notation
-
-
+;;121203/af converts at load old note format to new
 
 (in-package :dm)
 
@@ -27,7 +26,6 @@
        (init-voice-track) )
     (init-music-score)
     ))
-
  
 ;; --------------
 ;;   INIT-MUSIC-SCORE
@@ -47,6 +45,7 @@
       (set-this 'tie t)) )
   (set-dur-from-tempo)
   (mark-bar)
+  (convert-old-note-format)
   ;(convert-chord)
   (if (get-dm-var 'init-music-include-dynamics)
      (set-dynamics 1))
@@ -61,8 +60,6 @@
 ;;
 ;; initializes voice tracks 
 ;;
-
-
 ;uses the dm vars to set up features and initial values for voice sysnthesis
 (defun init-voice-track ()
   (each-segment
@@ -121,31 +118,12 @@
     )))
 |#
 
-
 ;; ---------------
 ;;   RESET-MUSIC
 ;; ---------------
 ;;
 ;; reinitialize before rule application
 ;;
-#|
-(defun reset-music ()
-  (each-note
-    (set-this 'dr (this 'ndr))
-    (rem-this 'dro)
-    (if (not (this 'rest))
-      (set-this 'sl 0) )
-    (rem-this 'dc)
-    (rem-this 'va)
-    (rem-this 'vf)
-    (rem-this 'vol)
-    (rem-this 'pedal-perf) )
-  (if (get-dm-var 'init-music-include-dynamics) (set-dynamics 1))
-  ;(set-first 'va 0)
-  ;(set-first 'dc 0)
-  ;(set-first 'vol 0)
-  )
-|#
 
 ;;added nsl support
 (defun reset-music ()
@@ -185,7 +163,6 @@
   ;(set-first 'vol 0)
   )
 
-
 ;;
 ;; -----------------
 ;;   INIT-MUSIC-MF
@@ -214,22 +191,6 @@
 ;;   SET-DYNAMICS
 ;; ----------------
 ;;
-#|
-(defun set-dynamics (quant)
-  (let ((distance (* 4 quant))(a0add 0)) ;dB
-     (each-note-if
-       (this 'dyn)
-       (then
-        (setq a0add
-          (* distance
-             (case (this 'dyn)
-               (ppp -3)(pp -2)(p -1)(mp 0)(mf 1)(f 2)(ff 3)(fff 4)
-               (t  (if (get-dm-var 'verbose-i/o) (print-this "this dynamic not implemented " (this 'dyn) nil)))
-               )))
-        (if (not (this 'rest)) (add-this 'sl a0add))
-        ))))
-|#
-
 ;;distance defines the distance between the dynamics marking in dB
 ;;2004-04-26/af bugfix
 (defun set-dynamics (quant)
@@ -297,7 +258,7 @@
        (set-this 'ndr (* factor (get-note-value-fraction *i*)))
        (set-this 'dr (this 'ndr)) )))
 
-      
+#|    
 ;convert the note information to one fraction (e.g. 3/8, 1/4)
 ;both the new and old format are allowed
 (defun get-note-value-fraction (i)
@@ -328,6 +289,7 @@
                           (error 'get-note-value-fraction "this tuplet not implemented: " tuple) ))
                     )))
         notevalue )))
+|#
 
 ;120607/af new notation version with dots and tuples allowed in fraction notation
 (defun get-note-value-fraction (i)
@@ -458,74 +420,6 @@
 ;;   MARK-BAR
 ;; ------------
 ;;
-;;; (defun mark-bar ()
-;;;   (block mark-bar
-;;;     (each-track
-;;;       (let ((bar-dr 0)(dr-ack 0)(barnr 0)(meter))
-;;;         (each-note
-;;;           (if (this 'bar) (return-from mark-bar))  ;if already done exit
-;;;           (if (first?) (set-this 'bar barnr))
-;;;           (when (this 'meter) 
-;;;             (setq meter (this 'meter))
-;;;             (setq bar-dr
-;;;                   (round
-;;;                    (* (car meter)
-;;;                       (note-to-dr (cons nil (cadr meter))) )))
-;;;             (setq dr-ack 0)
-;;;             (set-this 'bar (incf barnr)))
-;;;           (when (= (round dr-ack) bar-dr)
-;;;             (setq dr-ack 0) 
-;;;             (set-this 'bar (incf barnr)) )
-;;;           ;(format t "~&bar-dr : ~A" bar-dr)
-;;;           (setq dr-ack (+ dr-ack (nom-dr *i*)))
-;;;           )))))
-;;; 
-;;; ;as above for midifile
-;;; (defun mark-bar-mf ()
-;;;   (block mark-bar
-;;;     (each-track
-;;;       (let ((bar-dr 0)(dr-ack 0)(barnr 0)(meter))
-;;;         (each-note
-;;;           (if (this 'bar) (return-from mark-bar))  ;if already done exit
-;;;           (if (first?) (set-this 'bar barnr))
-;;;           (when (this 'meter) 
-;;;             (setq meter (this 'meter))
-;;;             (setq bar-dr (* (car meter) (/ 1 (cadr meter))))
-;;;             (setq dr-ack 0)
-;;;             (set-this 'bar (incf barnr)))
-;;;           (when (= dr-ack bar-dr)
-;;;             (setq dr-ack 0) 
-;;;             (set-this 'bar (incf barnr)) )
-;;;           (while (> dr-ack bar-dr)
-;;;             (setq dr-ack (- dr-ack bar-dr)) 
-;;;             (incf barnr) )
-;;;           ;(format t "~&bar-dr : ~A" bar-dr)
-;;;           (setq dr-ack (+ dr-ack (apply '+ (cdr (this 'n)))))
-;;;           )))))
-
-
-;supports both note formats
-;;;(defun mark-bar ()
-;;;  (block mark-bar
-;;;    (each-track
-;;;      (let ((bar-dr 0)(dr-ack 0)(barnr 0)(meter))
-;;;        (each-note
-;;;          (if (this 'bar) (return-from mark-bar))  ;if already done exit
-;;;          (if (first?) (set-this 'bar barnr))
-;;;          (when (this 'meter) 
-;;;            (setq meter (this 'meter))
-;;;            (setq bar-dr (/ (car meter) (cadr meter)))
-;;;            (setq dr-ack 0)
-;;;            (set-this 'bar (incf barnr)))
-;;;          (when (= dr-ack bar-dr)
-;;;            (setq dr-ack 0) 
-;;;            (set-this 'bar (incf barnr)) )
-;;;          (while (> dr-ack bar-dr)
-;;;            (setq dr-ack (- dr-ack bar-dr)) 
-;;;            (incf barnr) )
-;;;          (format t "~&note : ~A dr-ack : ~A barnr : ~A" (this 'n) dr-ack barnr)
-;;;          (incf dr-ack (get-note-value-fraction *i*))
-;;;          )))))
 
 ;;0009/af mark also bar right after jump
 ;;0010/af included default meter and warn
@@ -553,8 +447,6 @@
          )
         (if (not meter-found-p) (warn "mark-bar: meter not found in track - using 4/4"))
         ))))
-
-
 
 ;;
 ;; -----------------
@@ -849,6 +741,24 @@
                    ))
             (t (error "not a single notevalue : ~A" midinotevalue))
             )))))
+
+;; ---------------------
+;;   CONVERT-OLD-NOTE-FORMAT
+;; --------------------- 
+;; a simple utility for converting notevalues from old format to new
+;; keep all the other markers eg tuple dot
+;; ("C" . 8) --> ("C" 1/8)
+;; 121203/af
+(defun convert-old-note-format ()
+  (each-note-if
+   (not (listp (cdr (this 'n))))
+   (then
+    (set-this 'n (old-to-new-note (this 'n)))
+    )))
+
+(defun old-to-new-note (note)
+  (list (car note) (/ 1 (cdr note))) )
+
                    
 ;;
 ;; -----------------
