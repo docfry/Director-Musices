@@ -23,7 +23,7 @@
    #+mcl
    (setf (logical-pathname-translations "dm") `(("**;*.*.*" #P"musperf:dm:**:*.*")))
    #+:mswindows
-  (setf (logical-pathname-translations "dm") `(("**;*.*.*" "U:\\dept\\tmh\\music\\proj\\musperf\\dm\\dm-source\\**\\*.*")))  ; new win7
+  (setf (logical-pathname-translations "dm") `(("**;*.*.*" "C:\\Nobackup\\afriberg\\Github\\Director-Musices\\dm-source\\**\\*.*")))  ; new win7 github
   ;;;(setf (logical-pathname-translations "dm") `(("**;*.*.*" "J:\\nada.kth.se\\dept\\tmh\\music\\proj\\musperf\\dm\\**\\*.*")))
    #+:lispworks ;mac
    ;(setf (logical-pathname-translations "dm") `(("**;*.*.*" "/afs/nada.kth.se/dept/tmh/music/proj/musperf/dm/**/*.*")))
