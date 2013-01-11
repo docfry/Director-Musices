@@ -27,7 +27,7 @@
     ))
   )
 
-(defun mark-metrical-accent ()
+(defun mark-metrical-accent-test ()
   (rem-all :beat0)(rem-all :beat1)(rem-all :beat2)(rem-all :beat3)
   (rem-all 'accent-m-auto)
   
@@ -42,6 +42,22 @@
     (when (this :beat3) (set-this 'accent-m-auto 6))
     )))
 
+;didnt work with timing using new name
+(defun mark-metrical-accent-test ()
+  (rem-all :beat0)(rem-all :beat1)(rem-all :beat2)(rem-all :beat3)
+  (rem-all 'accent-m)
+  
+  (mark-beat-levels)
+  
+  (each-note-if
+   (not (this 'rest))
+   (then
+    (when (this :beat0) (set-this 'accent-m nil))
+    (when (this :beat1) (set-this 'accent-m 3))
+    (when (this :beat2) (set-this 'accent-m 6))
+    (when (this :beat3) (set-this 'accent-m 9))
+    )))
+
 (defun mark-metrical-accent ()
   (rem-all :beat0)(rem-all :beat1)(rem-all :beat2)(rem-all :beat3)
   (rem-all :beat0sal)(rem-all :beat1sal)(rem-all :beat2sal)(rem-all :beat3sal)
@@ -52,11 +68,10 @@
   (each-note-if
    (not (this 'rest))
    (then
-    (when (this :beat0) (set-this 'beat0sal 1.5))
-    (when (this :beat1) (set-this 'beat1sal 2))
-    (when (this :beat2) (set-this 'beat3sal 2.5))
+    (when (this :beat0) (set-this 'beat0sal 3))
+    (when (this :beat1) (set-this 'beat1sal 3))
+    (when (this :beat2) (set-this 'beat3sal 3))
     (when (this :beat3) (set-this 'beat4sal 3)) ))
-  
     )
 
 ;mark 4 different metrical levels from notated meter
@@ -103,16 +118,13 @@
 
 ;mark the duration in ms of each beat level
 ;only at meter mark
-;FUNKAR INTE
 (defun mark-beat-fraction-dr ()
   (let (beat-value factor fractions)
-    (print "hej1")
     (each-note
        (when (this 'meter)
            (setq beat-value (cadr (this 'meter))) )
        (when (this 'mm)
            (setq factor (/ (* beat-value 60000.0) (this 'mm))) )
-       (print "hej")
        (when (this 'meter)
            (setq fractions (get-beat-fractions (this 'meter)))
            (print-ll " fractions " fractions)
