@@ -66,12 +66,27 @@
 ;beat3 bar or 2 bars
 (defun mark-beat-levels ()
   (let (beat0 beat1 beat2 beat3
-              (ack-value 0.0) meter)
+              (ack-value 0.0) fractions)
     (each-track
      (setq ack-value 0.0)
      (each-note             ;mark beat
       (when (this 'meter)
-        (setq meter (this 'meter))
+        (setq fractions (get-beat-fractions (this 'meter)))
+        (setq beat0 (first fractions))
+        (setq beat1 (second fractions))
+        (setq beat2 (third fractions))
+        (setq beat3 (fourth fractions)) )
+      ;(when (this 'bar) (setq ack-value 0))
+      (when (zerop (mod ack-value beat0)) (set-this :beat0 t))
+      (when (zerop (mod ack-value beat1)) (set-this :beat1 t))
+      (when (zerop (mod ack-value beat2)) (set-this :beat2 t))
+      (when (zerop (mod ack-value beat3)) (set-this :beat3 t))
+      (incf ack-value (get-note-value-fraction *i*))
+      ))))
+
+;list of translations from meter to beat level fractions
+(defun get-beat-fractions (meter)
+  (let ((beat0 1/8) (beat1 1/4)(beat2 2/4)(beat3 4/4)) ;default 4/4
         (cond
          ((equal meter '(4 4)) (setq beat0 1/8 beat1 1/4 beat2 2/4 beat3 4/4))
          ((equal meter '(2 2)) (setq beat0 1/4 beat1 1/2 beat2 2/2 beat3 4/2))
@@ -81,12 +96,30 @@
          ((equal meter '(6 8)) (setq beat0 1/8 beat1 3/8 beat2 6/8 beat3 12/8))
          ((equal meter '(9 8)) (setq beat0 1/8 beat1 3/8 beat2 9/8 beat3 18/8))
          ((equal meter '(12 8))(setq beat0 1/8 beat1 3/8 beat2 6/8 beat3 12/8))
-         ))
-      ;(when (this 'bar) (setq ack-value 0))
-      (when (zerop (mod ack-value beat0)) (set-this :beat0 t))
-      (when (zerop (mod ack-value beat1)) (set-this :beat1 t))
-      (when (zerop (mod ack-value beat2)) (set-this :beat2 t))
-      (when (zerop (mod ack-value beat3)) (set-this :beat3 t))
-      (incf ack-value (get-note-value-fraction *i*))
-      ))))
+         (t (warn " get-beat-level-fractions, meter not defined: ~A ,using (4 4) instead" meter))
+         )
+        (list beat0 beat1 beat2 beat3)
+        ))
+
+;mark the duration in ms of each beat level
+;only at meter mark
+;FUNKAR INTE
+(defun mark-beat-fraction-dr ()
+  (let (beat-value factor fractions)
+    (print "hej1")
+    (each-note
+       (when (this 'meter)
+           (setq beat-value (cadr (this 'meter))) )
+       (when (this 'mm)
+           (setq factor (/ (* beat-value 60000.0) (this 'mm))) )
+       (print "hej")
+       (when (this 'meter)
+           (setq fractions (get-beat-fractions (this 'meter)))
+           (print-ll " fractions " fractions)
+           (set-this :beat0dr (* factor (first fractions)))
+           (set-this :beat1dr (* factor (second fractions)))
+           (set-this :beat2dr (* factor (third fractions)))
+           (set-this :beat3dr (* factor (fourth fractions)))
+           )
+       )))
 
