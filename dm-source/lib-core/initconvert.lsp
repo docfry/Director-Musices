@@ -9,6 +9,7 @@
 ;;2006-02-15/af added  voice track init
 ;;120607/af new notation version with dots and tuples allowed in fraction notation
 ;;121203/af converts at load old note format to new
+;;120114/af changed score dynamics to nsl
 
 (in-package :dm)
 
@@ -39,6 +40,7 @@
      ; (error "Performance parameters in file. Use Load music performance ... instead" ))
     (when (not (this 'rest))    ;not rest - set sl and f0
       (set-this 'sl 0)
+      (set-this 'nsl 0)
       (set-this 'f0 (note-to-f0 (this 'n))) )
     (when (this 'bind)  ; converting old tie
       (rem-this 'bind)
@@ -125,43 +127,28 @@
 ;; reinitialize before rule application
 ;;
 
-;;added nsl support
+;; added nsl support
+;; dynamics applied to nsl
 (defun reset-music ()
   (each-note
-    (set-this 'dr (this 'ndr))
-    (rem-this 'dro)
-   (if (not (this 'rest))
-       (if (this 'nsl) (set-this 'sl (this 'nsl))
-         (set-this 'sl 0) ))
-    (rem-this 'dc)
-    (rem-this 'va)
-    (rem-this 'vf)
-    (rem-this 'vol)
-    (rem-this 'pedal-perf) )
-  (if (get-dm-var 'init-music-include-dynamics) (set-dynamics 1))
+   (set-this 'dr (this 'ndr))
+   (rem-this 'dro)
+   (when (not (this 'rest))
+     (if (this 'nsl) (set-this 'sl (this 'nsl))
+       (progn
+         (set-this 'sl 0)
+         (set-this 'nsl 0) )))
+   (rem-this 'dc)
+   (rem-this 'va)
+   (rem-this 'vf)
+   (rem-this 'vol)
+   (rem-this 'pedal-perf) )
+  ;(if (get-dm-var 'init-music-include-dynamics) (set-dynamics 1))
   ;(set-first 'va 0)
   (set-first 'dc 0)
   ;(set-first 'vol 0)
   )
 
-;a fix for not resetting read pitch bend
-(defun reset-music-no-dc ()
-  (each-note
-    (set-this 'dr (this 'ndr))
-    (rem-this 'dro)
-   (if (not (this 'rest))
-       (if (this 'nsl) (set-this 'sl (this 'nsl))
-         (set-this 'sl 0) ))
-    ;(rem-this 'dc)
-    (rem-this 'va)
-    (rem-this 'vf)
-    (rem-this 'vol)
-    (rem-this 'pedal-perf) )
-  (if (get-dm-var 'init-music-include-dynamics) (set-dynamics 1))
-  ;(set-first 'va 0)
-  ;(set-first 'dc 0)
-  ;(set-first 'vol 0)
-  )
 
 ;;
 ;; -----------------
@@ -203,8 +190,9 @@
                                   (ppp -3)(pp -2)(p -1)(mp 0)(mf 1)(f 2)(ff 3)(fff 4)
                                   (t  (if (get-dm-var 'verbose-i/o) (print-this "this dynamic mark is not implemented: " 'dyn nil)))
                                   ))))
-      (if (and (numberp dsl) (not (zerop dsl)) (not (this 'rest)) (this 'sl))
-          (add-this 'sl dsl))
+      (when (and (numberp dsl) (not (zerop dsl)) (not (this 'rest)) (this 'sl) (this 'nsl))
+        (add-this 'sl dsl)
+        (add-this 'nsl dsl) )
       )))
 
 ;;

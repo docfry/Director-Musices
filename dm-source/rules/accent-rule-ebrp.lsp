@@ -140,6 +140,7 @@
 ;; not really compatible with the traditional rule application but works well with the new rule interaction stuff
 ;; will probably not work with negative values as well
 ;; 120327/af
+;; 130114/af included dsl (new score dynamics)
 (defun accent-apply-sl (inote ext-left ext-right peak curve-left curve-right)
   (let ((istart (if (float ext-left)
                    (i?ndr-before-index inote ext-left)
@@ -156,7 +157,7 @@
     ;transfer dsl to sl
     (loop for i from istart to iend do
           (if (iget i 'sl) 
-              (iset i  'sl (max (iget i 'sl) (iget i 'dsl))) )
+              (iset i  'sl (max (iget i 'sl) (+ (iget i 'nsl)(iget i 'dsl)))) )
           (rem-var (nth i *v*) 'dsl)
           )))
 
