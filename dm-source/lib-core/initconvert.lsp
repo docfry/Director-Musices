@@ -193,8 +193,9 @@
 ;;
 ;;distance defines the distance between the dynamics marking in dB
 ;;2004-04-26/af bugfix
+;;2012-01-14/af changed from 4 dB to 2.5 dB per step. This makes the whole range = 20dB.
 (defun set-dynamics (quant)
-  (let ((dsl 0) (distance (* 4 quant))) ;dB
+  (let ((dsl 0) (distance (* 2.5 quant))) ;dB
      (each-note
       (if (first?) (setq dsl 0)) ;reset for each track "each track" could not be used
       (if (this 'dyn) 
