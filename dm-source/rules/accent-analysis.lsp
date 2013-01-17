@@ -5,6 +5,7 @@
 
 (in-package :dm)
 
+#|
 (defun mark-metrical-accent ()
   (rem-all :beat)
   (rem-all 'accent-m-auto)
@@ -26,23 +27,10 @@
     ;(set-this 'accent-m-auto 0)
     ))
   )
+|#
 
-(defun mark-metrical-accent-test ()
-  (rem-all :beat0)(rem-all :beat1)(rem-all :beat2)(rem-all :beat3)
-  (rem-all 'accent-m-auto)
-  
-  (mark-beat-levels)
-  
-  (each-note-if
-   (not (this 'rest))
-   (then
-    (when (this :beat0) (set-this 'accent-m-auto nil))
-    (when (this :beat1) (set-this 'accent-m-auto 4))
-    (when (this :beat2) (set-this 'accent-m-auto 6))
-    (when (this :beat3) (set-this 'accent-m-auto 6))
-    )))
-
-;didnt work with timing using new name
+;a short version setting accent-m directly
+;didnt work with sync using new name
 (defun mark-metrical-accent-test ()
   (rem-all :beat0)(rem-all :beat1)(rem-all :beat2)(rem-all :beat3)
   (rem-all 'accent-m)
@@ -58,21 +46,39 @@
     (when (this :beat3) (set-this 'accent-m 9))
     )))
 
+;main function
 (defun mark-metrical-accent ()
   (rem-all :beat0)(rem-all :beat1)(rem-all :beat2)(rem-all :beat3)
   (rem-all :beat0sal)(rem-all :beat1sal)(rem-all :beat2sal)(rem-all :beat3sal)
-  (rem-all 'accent-m-auto)
+  (rem-all :beat0dr)(rem-all :beat1dr)(rem-all :beat2dr)(rem-all :beat3dr)
+  (rem-all 'accent-m)
   ;mark metrical levels
   (mark-beat-levels)
   ;default saliences
   (each-note-if
    (not (this 'rest))
    (then
-    (when (this :beat0) (set-this 'beat0sal 3))
-    (when (this :beat1) (set-this 'beat1sal 3))
-    (when (this :beat2) (set-this 'beat3sal 3))
-    (when (this :beat3) (set-this 'beat4sal 3)) ))
-    )
+    (when (this :beat0) (set-this :beat0sal 3))
+    (when (this :beat1) (set-this :beat1sal 3))
+    (when (this :beat2) (set-this :beat2sal 3))
+    (when (this :beat3) (set-this :beat3sal 3)) ))
+  ;compute pulse intervals
+  (mark-beat-fraction-dr)
+  ;gaussian scaling
+  (scale-beat-salience)
+  ;summarize into final accent salience
+  (let ((beat0sal 0) (beat1sal 0) (beat2sal 0) (beat3sal 0))
+    (each-note-if
+     (not (this 'rest))
+     (not (first?))  ;quickfix since it doesn't work to apply accent on the first note
+     (then
+      (setq beat0sal (or (this :beat0sal) 0))
+      (setq beat1sal (or (this :beat1sal) 0))
+      (setq beat2sal (or (this :beat2sal) 0))
+      (setq beat3sal (or (this :beat3sal) 0))
+      (set-this 'accent-m (+ beat0sal beat1sal beat2sal beat3sal))
+      )))
+  )
 
 ;mark 4 different metrical levels from notated meter
 ;beat0 sub-beat 
@@ -127,11 +133,64 @@
            (setq factor (/ (* beat-value 60000.0) (this 'mm))) )
        (when (this 'meter)
            (setq fractions (get-beat-fractions (this 'meter)))
-           (print-ll " fractions " fractions)
+           ;(print-ll " fractions " fractions)
            (set-this :beat0dr (* factor (first fractions)))
            (set-this :beat1dr (* factor (second fractions)))
            (set-this :beat2dr (* factor (third fractions)))
            (set-this :beat3dr (* factor (fourth fractions)))
            )
-       )))
+     )))
 
+(defun scale-beat-salience ()
+  (let ((m 1.0) (s 1.65) ; mean and SD for gauss distribution
+        beat0dr beat1dr beat2dr beat3dr )
+    (each-note
+     (when (this :beat0dr) (setq beat0dr (/ (this :beat0dr) 1000.0)))
+     (when (this :beat1dr) (setq beat1dr (/ (this :beat1dr) 1000.0)))
+     (when (this :beat2dr) (setq beat2dr (/ (this :beat2dr) 1000.0)))
+     (when (this :beat3dr) (setq beat3dr (/ (this :beat3dr) 1000.0)))
+     
+     (when (this :beat0sal) 
+       (set-this :beat0sal (* (this :beat0sal) (log-gauss-trans beat0dr m s)))
+       ;(print-ll "log-gauss-trans " (log-gauss-trans beat0dr m s))
+       )
+     (when (this :beat1sal) (set-this :beat1sal (* (this :beat1sal) (log-gauss-trans beat1dr m s))))
+     (when (this :beat2sal) (set-this :beat2sal (* (this :beat2sal) (log-gauss-trans beat2dr m s))))
+     (when (this :beat3sal) (set-this :beat3sal (* (this :beat3sal) (log-gauss-trans beat3dr m s))))
+     )))
+
+(defun log-gauss-trans (x m s)
+  (let ((xlog (log x))
+        (mlog (log m))
+        (slog (log s)) )
+    (exp (* -0.5 (expt (/ (- xlog mlog) slog) 2)))
+    ))
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  

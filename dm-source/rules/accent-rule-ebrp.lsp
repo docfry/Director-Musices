@@ -150,6 +150,7 @@
                 (min (+ note-number ext-left) (i?last)) ))
         fun-left fun-right power-left power-right )
     ;translate from keywords to function names and power
+    (print-ll "istart " istart " inote " inote " iend " iend)
     (multiple-value-setq (fun-left power-left) (accents-translate-curv-name-left curve-left))
     (multiple-value-setq  (fun-right power-right) (accents-translate-curv-name-right curve-right))
     (iset-ramp-x2-decimal-last istart inote 0.0 0.0 0.0 peak 'dsl power-left fun-left fun-left)
