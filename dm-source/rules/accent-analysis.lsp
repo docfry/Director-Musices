@@ -114,6 +114,7 @@
          ((equal meter '(4 2)) (setq beat0 1/4 beat1 1/2 beat2 2/2 beat3 4/2))
          ((equal meter '(2 4)) (setq beat0 1/8 beat1 1/4 beat2 2/4 beat3 4/4))
          ((equal meter '(3 4)) (setq beat0 1/8 beat1 1/4 beat2 3/4 beat3 6/4))
+         ((equal meter '(3 8)) (setq beat0 1/8 beat1 3/8 beat2 6/8 beat3 12/4))
          ((equal meter '(6 8)) (setq beat0 1/8 beat1 3/8 beat2 6/8 beat3 12/8))
          ((equal meter '(9 8)) (setq beat0 1/8 beat1 3/8 beat2 9/8 beat3 18/8))
          ((equal meter '(12 8))(setq beat0 1/8 beat1 3/8 beat2 6/8 beat3 12/8))
@@ -167,30 +168,25 @@
     ))
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+;-------------- batch processing for testing --------------
+
+(setq *batch-rules*
+      '((mark-metrical-accent)
+        (METRICAL-ACCENT 1.5 :CURVE :QUADRATIC :amp 0.25)
+        ))
+
+
+(defun run-accent-batch ()
+  (let ((dir (ask-user-for-directory)) (comp 1))
+    (when dir
+      (let ((dir-list (directory dir)))
+        ;(pprint dir-list)
+        (dolist (fpath dir-list)
+          ;(print-ll "fpath = " fpath)
+          (when (string-equal (pathname-type fpath) "mus")
+            (print-ll "   fpath = " fpath)
+            (load-score-fpath fpath)
+            (rule-interaction-apply-rules-sync *batch-rules* comp)
+            (save-performance-fpath (merge-pathnames (make-pathname :type "per") fpath))
+            (save-performance-midifile1-fpath (merge-pathnames (make-pathname :type "mid") fpath))
+            ))))))
