@@ -29,6 +29,10 @@
   )
 |#
 
+
+;-------------- metrical accent ----------------------------------------
+
+#|
 ;a short version setting accent-m directly
 ;didnt work with sync using new name
 (defun mark-metrical-accent-test ()
@@ -45,6 +49,7 @@
     (when (this :beat2) (set-this 'accent-m 6))
     (when (this :beat3) (set-this 'accent-m 9))
     )))
+|#
 
 ;main function
 (defun mark-metrical-accent ()
@@ -166,7 +171,85 @@
         (slog (log s)) )
     (exp (* -0.5 (expt (/ (- xlog mlog) slog) 2)))
     ))
-  
+
+
+;------------- melodic accent -----------------------------
+
+;main function
+(defun mark-melodic-accent ()
+  (rem-all 'accent-c)
+  ;mark metrical levels
+  (mark-mel-peak-and-valley)
+  (mark-mel-salience-dev-from-mean)
+  (mark-mel-salience-prev-interval)
+  (mark-mel-final-combination)
+  )
+
+(defun mark-mel-peak-and-valley ()
+  (rem-all :peak)(rem-all :valley)
+  (each-note-if
+   (not (first?))
+   (not (last?))   
+   (not (prev 'rest))
+   (not (this 'rest))
+   (not (next 'rest))
+   (> (this-f0) (prev-f0))
+   (> (this-f0) (next-f0))
+   (then
+    (set-this :peak t) ))
+  (each-note-if
+   (not (first?))
+   (not (last?))   
+   (not (prev 'rest))
+   (not (this 'rest))
+   (not (next 'rest))
+   (< (this-f0) (prev-f0))
+   (< (this-f0) (next-f0))
+   (then
+    (set-this :valley t) )) )
+
+(defun mark-mel-salience-dev-from-mean ()
+  (rem-all :melsal1)
+  (each-track
+   ;compute mean f0 for the track
+   (let ((mean-f0 0) (n-f0 0))
+     (each-note-if
+      (this 'f0)
+      (incf mean-f0 (this-f0))
+      (incf n-f0) )
+     (setq mean-f0 (float (/ mean-f0 n-f0)))
+     (print mean-f0) 
+   (each-note-if
+    (this :peak)
+    (then
+     (set-this :melsal1 (float (/ (max 0 (- (this-f0) mean-f0)) 4))) ))
+   (each-note-if
+    (this :valley)
+    (then
+     (set-this :melsal1 (float (/ (max 0 (- mean-f0 (this-f0))) 12))) ))
+   )))
+
+(defun mark-mel-salience-prev-interval ()
+  (rem-all :melsal2)
+  (each-track
+   ;compute mean f0 for the track
+   (each-note-if
+    (this :peak)
+    (then
+     (set-this :melsal2 (float (/ (abs (- (this-f0) (prev-f0))) 4))) ))
+   (each-note-if
+    (this :valley)
+    (then
+     (set-this :melsal2 (float (/ (abs (- (this-f0) (prev-f0))) 12))) ))
+   ))
+
+(defun mark-mel-final-combination ()
+  (each-note-if
+   (or (this :peak) (this :valley))
+   (then
+    (set-this 'accent-c (round (* 1.5 (+ (this :melsal1) (this :melsal2)))))
+    )))
+    
   
 ;-------------- batch processing for testing --------------
 
