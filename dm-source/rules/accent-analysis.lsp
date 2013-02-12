@@ -247,7 +247,7 @@
   (each-note-if
    (or (this :peak) (this :valley))
    (then
-    (set-this 'accent-c (round (* 1.5 (+ (this :melsal1) (this :melsal2)))))
+    (set-this 'accent-c (min 5 (round (* 1.5 (+ (this :melsal1) (this :melsal2))))))
     )))
     
   
@@ -257,6 +257,13 @@
       '((mark-metrical-accent)
         (METRICAL-ACCENT 1.5 :CURVE :QUADRATIC :amp 0.25)
         ))
+
+(setq *batch-rules*
+      '((mark-melodic-accent)
+        (melodic-contour-ACCENT 1 :CURVE :QUADRATIC :width 2)
+        ))
+
+
 
 
 (defun run-accent-batch ()
@@ -269,6 +276,7 @@
           (when (string-equal (pathname-type fpath) "mus")
             (print-ll "   fpath = " fpath)
             (load-score-fpath fpath)
+            (each-track (setf (synth *this-track*) (make-synth "Roland-1010")) ) ; set synth
             (rule-interaction-apply-rules-sync *batch-rules* comp)
             (save-performance-fpath (merge-pathnames (make-pathname :type "per") fpath))
             (save-performance-midifile1-fpath (merge-pathnames (make-pathname :type "mid") fpath))
