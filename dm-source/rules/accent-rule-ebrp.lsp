@@ -56,6 +56,7 @@
       ))))
 
 (defun melodic-contour-accent (quant &key (curve :linear) (amp 1) (dur 1) (width 1))
+  (print "lksdölfkösldkfö")
   (each-note-if
    (this 'accent-c)
    (then

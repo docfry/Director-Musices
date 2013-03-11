@@ -1,0 +1,32 @@
+dm
+ package-dm
+dm:lib-core
+ scoreobjects
+ basicmacros
+ infixmath
+ musicio
+ rulemacros
+ parallelrulemacros
+ dm-objects
+ initconvert
+ save-pdm-score
+ rule-groups
+ syntobjects
+ shapeobjects
+ midifileoutput
+ midifileinput
+ playlist
+ utilityrules
+ midibasic-lw
+dm
+ init
+dm:rules
+ frules1
+ frules2
+ Intonation
+ FinalRitard
+ Punctuation
+ phrasearch
+ SyncOnMel
+ accent-analysis
+ accent-rule-ebrp
