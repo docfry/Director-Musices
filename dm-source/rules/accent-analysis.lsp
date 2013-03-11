@@ -5,6 +5,8 @@
 
 (in-package :dm)
 
+
+
 #|
 (defun mark-metrical-accent ()
   (rem-all :beat)
@@ -194,7 +196,7 @@
    (not (this 'rest))
    (not (next 'rest))
    (> (this-f0) (prev-f0))
-   (> (this-f0) (next-f0))
+   (>= (this-f0) (next-f0))
    (then
     (set-this :peak t) ))
   (each-note-if
@@ -204,7 +206,7 @@
    (not (this 'rest))
    (not (next 'rest))
    (< (this-f0) (prev-f0))
-   (< (this-f0) (next-f0))
+   (<= (this-f0) (next-f0))
    (then
     (set-this :valley t) )) )
 
@@ -262,9 +264,6 @@
       '((mark-melodic-accent)
         (melodic-contour-ACCENT 1 :CURVE :QUADRATIC :width 2)
         ))
-
-
-
 
 (defun run-accent-batch ()
   (let ((dir (ask-user-for-directory)) (comp 1))
