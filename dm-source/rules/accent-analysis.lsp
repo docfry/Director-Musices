@@ -54,6 +54,7 @@
 |#
 
 ;main function
+; 4 different beat levels are defined
 (defun mark-metrical-accent ()
   (rem-all :beat0)(rem-all :beat1)(rem-all :beat2)(rem-all :beat3)
   (rem-all :beat0sal)(rem-all :beat1sal)(rem-all :beat2sal)(rem-all :beat3sal)
@@ -251,7 +252,25 @@
    (then
     (set-this 'accent-c (min 5 (round (* 1.5 (+ (this :melsal1) (this :melsal2))))))
     )))
-    
+
+;------------- harmonic accent -----------------------------
+
+(defun mark-harmonic-accent ()
+  (if (or (not (get-first 'q)) (not (get-first 'key))) 
+    (Print-ll "mark-harm-accent : no chord or key on first note - skipping rule")
+    (progn 
+      (rem-all 'accent-h)
+      (accent-harm-charge)
+      )))
+
+(defun accent-harm-charge ()
+  (let ((key)(sal)(quant 1))
+    (each-note 
+     (if (this 'key) (setq key (this 'key)))
+     (when (and (this 'q) (not (this 'rest)))   ; not on rests
+       (setq sal (* quant 1.5 (sqrt (harmonic-charge-fn (this 'q) key nil))))
+       (if (> sal 0) (set-this 'accent-h sal))
+       ))))
   
 ;-------------- batch processing for testing --------------
 
@@ -263,6 +282,10 @@
 (setq *batch-rules*
       '((mark-melodic-accent)
         (melodic-contour-ACCENT 1 :CURVE :QUADRATIC :width 2)
+        ))
+(setq *batch-rules*
+      '((mark-harmonic-accent)
+        (harmonic-accent 1 :CURVE :QUADRATIC :width 2)
         ))
 
 (defun run-accent-batch ()
