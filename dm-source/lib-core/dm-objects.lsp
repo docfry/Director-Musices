@@ -261,7 +261,7 @@
        :initform t)     ;send control and other midi param. ?
      (midifile-out-save-chord-phrase? :initarg :midifile-out-save-chord-phrase?
                                       :accessor midifile-out-save-chord-phrase?
-                                      :initform nil)     ;store chords and phrases as lyrics
+                                      :initform t)     ;store chords and phrases as lyrics
      (send-note-off? :initarg :send-note-off? :accessor send-note-off?
        :initform t)     ;send noton 0 after each tone
      (start-bar :initarg :start-bar :accessor start-bar
@@ -361,4 +361,4 @@
 
 
 
-
+

@@ -20,6 +20,7 @@
 ;; 061018/af added reverb and pan
 ;; 110416/af added Yamaha Clavinova CLP-370, all synt def now only in this file
 ;; 121202/af added Yamaha P90
+;; 130502/af added accent analysis midi output
 
 (in-package :dm)
 
@@ -295,6 +296,36 @@
     (if (get-dm-var 'to-midi-file?)
         (midifile-write-list (list (logior #xB0 (1- (channel synt))) 91 reverb) time )
       (warn "MIDI reverb message not implemented in Midishare")
+      )))
+
+;---------- accent salience midi output ------------
+;accent-c = control change 16
+;accent-m = control change 17
+;accent-h = control change 18
+
+
+(defmethod set-accent-c ((synt synt) accent-c time)
+  (if (or (< accent-c 0)(> accent-c 127))
+      (warn "Synt: MIDI control change (accent-c) outside range (0-127)")
+    (if (get-dm-var 'to-midi-file?)
+        (midifile-write-list (list (logior #xB0 (1- (channel synt))) 16 accent-c) time )
+      (warn "MIDI accent message not implemented in Midishare")
+      )))
+
+(defmethod set-accent-m ((synt synt) accent-m time)
+  (if (or (< accent-m 0)(> accent-m 127))
+      (warn "Synt: MIDI control change (accent-m) outside range (0-127)")
+    (if (get-dm-var 'to-midi-file?)
+        (midifile-write-list (list (logior #xB0 (1- (channel synt))) 17 accent-m) time )
+      (warn "MIDI accent-m message not implemented in Midishare")
+      )))
+
+(defmethod set-accent-h ((synt synt) accent-h time)
+  (if (or (< accent-h 0)(> accent-h 127))
+      (warn "Synt: MIDI control change (accent-h) outside range (0-127)")
+    (if (get-dm-var 'to-midi-file?)
+        (midifile-write-list (list (logior #xB0 (1- (channel synt))) 18 accent-h) time )
+      (warn "MIDI accent-h message not implemented in Midishare")
       )))
 
 ;-----------volume-----------------
