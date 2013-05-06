@@ -627,7 +627,7 @@
      (list (logior #xB0 (1- (channel synt)))
        7                     
        (cond
-           ;((< vol 0) (warn "Pinnacle: Underflow in volume") 0)
+           ((< vol 0) (warn "Pinnacle: Underflow in volume") 0)
            ((> vol 127) (warn "Pinnacle: Overflow in volume") 127)
            (t vol) ))
      time ))
@@ -747,7 +747,7 @@
      (list (logior #xB0 (1- (channel synt)))
        7                     
        (cond
-           ;((< vol 0) (warn "SBlive: Underflow in volume") 0)
+           ((< vol 0) (warn "SBlive: Underflow in volume") 0)
            ((> vol 127) (warn "SBlive: Overflow in volume") 127)
            (t vol) ))
      time ))
@@ -844,7 +844,7 @@
      (list (logior #xB0 (1- (channel synt)))
        7                     
        (cond
-           ;((< vol 0) (warn "synt-roland-a90: Underflow in volume") 0)
+           ((< vol 0) (warn "synt-roland-a90: Underflow in volume") 0)
            ((> vol 127) (warn "synt-roland-a90: Overflow in volume") 127)
            (t vol) ))
      time ))
@@ -921,7 +921,7 @@
      (list (logior #xB0 (1- (channel synt)))
        7                     
        (cond
-           ;((< vol 0) (warn "synt-roland-pma5: Underflow in volume") 0)
+           ((< vol 0) (warn "synt-roland-pma5: Underflow in volume") 0)
            ((> vol 127) (warn "synt-roland-pma5: Overflow in volume") 127)
            (t vol) ))
      time ))
@@ -989,7 +989,7 @@
      (list (logior #xB0 (1- (channel synt)))
        7                     
        (cond
-           ;((< vol 0) (warn "synt-roland-1010: Underflow in volume") 0)
+           ((< vol 0) (warn "synt-roland-1010: Underflow in volume") 0)
            ((> vol 127) (warn "synt-roland-1010: Overflow in volume") 127)
            (t vol) ))
      time ))
@@ -1063,7 +1063,7 @@
      (list (logior #xB0 (1- (channel synt)))
        7                     
        (cond
-           ;((< vol 0) (warn "synt-roland-1010-orchII: Underflow in volume") 0)
+           ((< vol 0) (warn "synt-roland-1010-orchII: Underflow in volume") 0)
            ((> vol 127) (warn "synt-roland-1010-orchII: Overflow in volume") 127)
            (t vol) ))
      time ))
@@ -1130,7 +1130,7 @@
      (list (logior #xB0 (1- (channel synt)))
        7                     
        (cond
-           ;((< vol 0) (warn "synt-kontakt2-piano: Underflow in volume") 0)
+           ((< vol 0) (warn "synt-kontakt2-piano: Underflow in volume") 0)
            ((> vol 127) (warn "synt-kontakt2-piano: Overflow in volume") 127)
            (t vol) ))
      time ))
@@ -1198,7 +1198,7 @@
      (list (logior #xB0 (1- (channel synt)))
        7                     
        (cond
-           ;((< vol 0) (warn "synt-kontakt2-wind: Underflow in volume") 0)
+           ((< vol 0) (warn "synt-kontakt2-wind: Underflow in volume") 0)
            ((> vol 127) (warn "synt-kontakt2-wind: Overflow in volume") 127)
            (t vol) ))
      time ))
@@ -1296,7 +1296,7 @@
      (list (logior #xB0 (1- (channel synt)))
        7                     
        (cond
-           ;((< vol 0) (warn "synt-technics-sx-p30: Underflow in volume") 0)
+           ((< vol 0) (warn "synt-technics-sx-p30: Underflow in volume") 0)
            ((> vol 127) (warn "synt-technics-sx-p30: Overflow in volume") 127)
            (t vol) ))
      time ))
@@ -1332,7 +1332,7 @@
      (list (logior #xB0 (1- (channel synt)))
        7                     
        (cond
-           ;((< vol 0) (warn "synt-yamaha-clavinova-clp370 Underflow in volume") 0)
+           ((< vol 0) (warn "synt-yamaha-clavinova-clp370 Underflow in volume") 0)
            ((> vol 127) (warn "synt-yamaha-clavinova-clp370 Overflow in volume") 127)
            (t vol) ))
      time ))
@@ -1373,7 +1373,7 @@
      (list (logior #xB0 (1- (channel synt)))
        7                     
        (cond
-           ;((< vol 0) (warn "synt-yamaha-P90 Underflow in volume") 0)
+           ((< vol 0) (warn "synt-yamaha-P90 Underflow in volume") 0)
            ((> vol 127) (warn "synt-yamaha-P90 Overflow in volume") 127)
            (t vol) ))
      time ))
@@ -2653,3 +2653,7 @@
       "120 Tuned Block 1" "121 Tuned Block 2" "122 Tuned block 3" "123 Grongkas" "124 Orch Snare"
       "125 Snr Roll Vsw" "126 OrchSnr Menu" "127 Orch BassDrm" "128 OrchDrm Menu"
       ))
+
+
+
+
