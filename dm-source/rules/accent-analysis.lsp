@@ -211,6 +211,30 @@
    (then
     (set-this :valley t) )) )
 
+;; mark on all notes except repeats
+(defun mark-mel-peak-and-valley ()
+  (rem-all :peak)(rem-all :valley)
+  (each-note-if
+   (not (first?))
+   (not (last?))   
+   (not (prev 'rest))
+   (not (this 'rest))
+   ;(not (next 'rest))
+   (> (this-f0) (prev-f0))
+   ;(>= (this-f0) (next-f0))
+   (then
+    (set-this :peak t) ))
+  (each-note-if
+   (not (first?))
+   (not (last?))   
+   (not (prev 'rest))
+   (not (this 'rest))
+   ;(not (next 'rest))
+   (< (this-f0) (prev-f0))
+   ;(<= (this-f0) (next-f0))
+   (then
+    (set-this :valley t) )) )
+
 (defun mark-mel-salience-dev-from-mean ()
   (rem-all :melsal1)
   (each-track
@@ -261,8 +285,9 @@
   (each-note-if
    (or (this :peak) (this :valley))
    (then
-    (set-this 'accent-c (min 5 (round (* 1.5 (* (this :melsal1) (this :melsal2))))))
-    )))
+    (let ((sal (min 5 (round (* 1.5 (* (this :melsal1) (this :melsal2)))))))
+    (if (> sal 0) (set-this 'accent-c sal))
+    ))))
 
 ;------------- harmonic accent -----------------------------
 
