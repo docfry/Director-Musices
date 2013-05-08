@@ -1,4 +1,4 @@
-;; Copyright (c) 2004 Lars Frydén, Johan Sundberg, Anders Friberg, Roberto Bresin
+;; Copyright (c) 2004 Lars Frydï¿½n, Johan Sundberg, Anders Friberg, Roberto Bresin
 ;; For information on usage and redistribution, and for a DISCLAIMER OF ALL
 ;; WARRANTIES, see the files, "README.txt" and "DIRECTORMUSICES.LICENSE.txt", in this distribution.
 
@@ -484,8 +484,12 @@
 
 ;;writes a list of bytes to file
 (defun print-cnl (l outfile)
-   (dolist (byte l)
-     (write-byte byte outfile) ))
+  (dolist (byte l)
+    (let ((b (if (< byte 0)
+                 (progn (format t "WARNING: byte was ~S, setting to 0.~%" byte)
+                        0)
+                 byte)))
+      (write-byte b outfile))))
 
 ;converts a string to a list of bytes
 ;strings longer than 127 chars will be truncated
