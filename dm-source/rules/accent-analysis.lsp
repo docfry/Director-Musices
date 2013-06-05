@@ -306,10 +306,7 @@
 ;;;5.       Maybe we should subtract a threshold, and if the result is negative just make it zero. 
 ;;;         But I would like to see how steps 1-4 work without doing that. Might be an unnecessary complexity.
 
-
-
-
-
+#|
 (defun mark-melodic-accent-2 ()
   (rem-all 'accent-c)
   (rem-all :melsal1)
@@ -332,6 +329,37 @@
        (set-this :melsal1 (abs (- (this-f0) mean-f0)))
        (set-this :melsal2 (abs (- (this-f0) (prev-f0))))
        (set-this :melsal3 (* (this :melsal1) (this :melsal2)))
+       (let ((salience (round (/ (this :melsal3) 15.0))))
+         (if (> salience 0) (set-this 'accent-c salience)) )
+       )))))
+|#
+
+(defun mark-melodic-accent-2 ()
+  (rem-all 'accent-c)
+  (rem-all :melsal1)
+  (rem-all :melsal2)
+  (rem-all :melsal3)
+  (each-track
+   ;compute mean f0 for the track
+   (let ((mean-f0 0) (n-f0 0))
+     (each-note-if
+      (this 'f0)
+      (incf mean-f0 (this-f0))
+      (incf n-f0) )
+     (setq mean-f0 (float (/ mean-f0 n-f0)))
+     (print-ll "mean f0 of this track = " mean-f0) 
+     (each-note-if
+      (not (first?))
+      (not (this 'rest))
+      (not (prev 'rest))
+      (then
+       (let ((f0-dist-mean (- (this-f0) mean-f0))
+             (f0-int (- (this-f0) (prev-f0))) )
+         (if (> f0-dist-mean 0) (set-this :melsal1 f0-dist-mean))      ;above mean
+         (if (<= f0-dist-mean 0) (set-this :melsal1 (abs (* f0-dist-mean 0.7)))) ;below mean
+         (if (> f0-int 0) (set-this :melsal2 f0-int))                  ;rising interval
+         (if (<= f0-int 0) (set-this :melsal2 (abs (* f0-int 0.7)))) ) ;falling interval
+         (set-this :melsal3 (* (this :melsal1) (this :melsal2)))
        (let ((salience (round (/ (this :melsal3) 15.0))))
          (if (> salience 0) (set-this 'accent-c salience)) )
        )))))
