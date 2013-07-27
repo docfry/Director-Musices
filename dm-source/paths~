@@ -21,16 +21,12 @@ dm:lib-core
 dm
  init
 dm:rules
- articulation
  frules1
  frules2
- FinalRitard
  Intonation
- noise
+ FinalRitard
  Punctuation
  phrasearch
- swing
  SyncOnMel
- violinvibrato
  accent-analysis
  accent-rule-ebrp
