@@ -256,6 +256,72 @@
        (set-this :melsal1 (float (/ (max 0 (- mean-f0 (this-f0))) 12))) ))
      )))
 
+;new version with running average
+(defun mark-mel-salience-dev-from-mean ()
+  (rem-all :melsal1)
+  (rem-all :f0-run-mean)
+  (mark-running-mean-2-bars)
+  (each-note-if
+   (this :peak)
+   (then
+    (set-this :melsal1 (float (/ (max 0 (- (this-f0) (this :f0-run-mean))) 4))) ))
+  (each-note-if
+   (this :valley)
+   (then
+    (set-this :melsal1 (float (/ (max 0 (- (this :f0-run-mean) (this-f0))) 12))) ))
+  )
+
+;computes a running mean of f0 up to (but not including) the current note
+;the starting point is the first note on the bar line one/two/three measures in the past
+(defun mark-running-mean-1-bar ()
+  (each-track
+   (let ((ibar1 0) (ibar2 0)
+         (istart 0) )
+     (each-note
+      (when (this 'bar)
+        (setq ibar1 ibar2)
+        (setq ibar2 *i*) )
+      (if (not (this 'rest)) (set-this :f0-run-mean (compute-mean-f0 ibar1 *i*)))
+      ))))
+
+(defun mark-running-mean-2-bars ()
+  (each-track 
+   (let ((ibar1 0) (ibar2 0) (ibar3 0)
+         (istart 0) )
+     (each-note
+      (when (this 'bar)
+        (setq ibar1 ibar2)
+        (setq ibar2 ibar3)
+        (setq ibar3 *i*) )
+      (if (not (this 'rest)) (set-this :f0-run-mean (compute-mean-f0 ibar1 *i*)))
+      ))))
+
+(defun mark-running-mean-3-bars ()
+  (each-track
+   (let ((ibar1 0) (ibar2 0) (ibar3 0) (ibar4 0)
+         (istart 0) )
+     (each-note
+      (when (this 'bar)
+        (setq ibar1 ibar2)
+        (setq ibar2 ibar3)
+        (setq ibar3 ibar4)
+        (setq ibar4 *i*) )
+      (if (not (this 'rest)) (set-this :f0-run-mean (compute-mean-f0 ibar1 *i*)))
+      ))))
+
+(defun compute-mean-f0 (i1 i2)
+  ; compute the mean pitch from note i1 to i2 not including i2
+  (let ((mean 0) (n 0))
+    (loop for i from i1 to (max 0 (1- i2)) do
+          (when (not (iget i 'rest))
+            (incf n)
+            (incf mean (iget-f0 i))
+            ))
+    (if (plusp n) (float (/ mean n))
+      (iget-f0 i2) ) ; first note
+    ))
+
+
 (defun mark-mel-salience-prev-interval ()
   (rem-all :melsal2)
   (each-track
