@@ -97,7 +97,7 @@
   (let (beat0 beat1 beat2 beat3
               (ack-value 0.0) fractions)
     (each-track
-     (setq ack-value 0.0)
+     (setq ack-value 0)
      (each-note             ;mark beat
       (when (this 'meter)
         (setq fractions (get-beat-fractions (this 'meter)))
@@ -110,6 +110,7 @@
       (when (zerop (mod ack-value beat1)) (set-this :beat1 t))
       (when (zerop (mod ack-value beat2)) (set-this :beat2 t))
       (when (zerop (mod ack-value beat3)) (set-this :beat3 t))
+      ;(print-ll " mod beat1 " (mod ack-value beat1) " fraction " ack-value)
       (incf ack-value (get-note-value-fraction *i*))
       ))))
 
@@ -260,7 +261,7 @@
 (defun mark-mel-salience-dev-from-mean ()
   (rem-all :melsal1)
   (rem-all :f0-run-mean)
-  (mark-running-mean-2-bars)
+  (mark-running-mean-2-bars-or-10-notes)
   (each-note-if
    (this :peak)
    (then
@@ -296,6 +297,21 @@
       (if (not (this 'rest)) (set-this :f0-run-mean (compute-mean-f0 ibar1 *i*)))
       ))))
 
+(defun mark-running-mean-2-bars-or-10-notes ()
+  (each-track 
+   (let ((ibar1 0) (ibar2 0) (ibar3 0)
+         (istart 0) )
+     (each-note
+      (when (this 'bar)
+        (setq ibar1 ibar2)
+        (setq ibar2 ibar3)
+        (setq ibar3 *i*) )
+      (if (< (compute-number-of-notes-excluding-rests ibar1 *i*) 10) ;go further back if few notes
+          (setq ibar1 (get-i-n-notes-before-excluding-rests 10)) )
+      ;(print-ll " bar = " (this 'bar) " *i* = " *i* " ibar1 = " ibar1)
+      (if (not (this 'rest)) (set-this :f0-run-mean (compute-mean-f0 ibar1 *i*)))
+      ))))
+
 (defun mark-running-mean-3-bars ()
   (each-track
    (let ((ibar1 0) (ibar2 0) (ibar3 0) (ibar4 0)
@@ -321,6 +337,36 @@
       (iget-f0 i2) ) ; first note
     ))
 
+ ; compute the number of notes excluding rests from i1 to i2 not including i2
+(defun compute-number-of-notes-excluding-rests (i1 i2)
+  (let ((n 0))
+    (loop for i from i1 to (max 0 (1- i2)) do
+          (when (not (iget i 'rest))
+            (incf n) ))
+    n
+    ))
+
+(defun get-i-n-notes-before-excluding-rests (n)
+  (let ((nsum 0) (iresult 0))
+    (if (<= *i* 1) 
+        (setq iresult 0)
+      (loop for i from (1- *i*) downto 0 do
+            (when (not (iget i 'rest))
+              (incf nsum)
+              (setq iresult i) )
+            (when (= nsum n)
+              (return) )))
+    iresult
+      ))
+
+#|
+(defun test ()
+  (each-note-if
+   (= *i* 12)
+   (then
+    (print-ll " i " (get-i-n-notes-before-excluding-rests 10))
+    )))
+|#
 
 (defun mark-mel-salience-prev-interval ()
   (rem-all :melsal2)
