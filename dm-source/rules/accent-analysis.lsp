@@ -84,7 +84,8 @@
       (setq beat1sal (or (this :beat1sal) 0))
       (setq beat2sal (or (this :beat2sal) 0))
       (setq beat3sal (or (this :beat3sal) 0))
-      (set-this 'accent-m (+ beat0sal beat1sal beat2sal beat3sal))
+      (set-this 'accent-m (* 0.3 (+ beat0sal beat1sal beat2sal beat3sal)))
+      ;ERICA rescaled the salience
       )))
   )
 
