@@ -425,11 +425,32 @@
          (if (> f0-dist-mean 0) (set-this :melsal1 f0-dist-mean))      ;above mean
          (if (<= f0-dist-mean 0) (set-this :melsal1 (abs (* f0-dist-mean 0.7)))) ;below mean
          (if (> f0-int 0) (set-this :melsal2 f0-int))                  ;rising interval
-         (if (<= f0-int 0) (set-this :melsal2 (abs (* f0-int 0.7)))) ) ;falling interval
+         (if (<= f0-int 0) (set-this :melsal2 (abs (* f0-int 0.2)))) ) ;falling interval
          (set-this :melsal3 (* (this :melsal1) (this :melsal2)))
        (let ((salience (/ (sqrt (this :melsal3)) 2.5)))
          (if (> salience 0) (set-this 'accent-c salience)) )
-       )))
+       ))
+  (mark-melodic-accent-retain-max-of-three)
+  )
+
+; keeps only the most salient peak in the context of three notes
+(defun mark-melodic-accent-retain-max-of-three ()
+  (each-note-if
+   (not (first?))
+   (not (last?))
+   (this 'accent-c)
+   (then
+    (if (or (and (prev 'accent-c) (> (prev 'accent-c) (this 'accent-c)))
+            (and (next 'accent-c) (> (next 'accent-c) (this 'accent-c))) )
+        (set-this :rem t)
+      )))
+  (each-note-if
+   (this :rem)
+   (then
+    (rem-this 'accent-c)
+    (rem-this :rem)
+    )))
+                 
 
 
 ;---------- melodic accent utility functions ----------------
