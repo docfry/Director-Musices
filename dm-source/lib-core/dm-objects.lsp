@@ -190,9 +190,10 @@
 (defclass score-settings ()
      ((default-tempo :initarg :default-tempo :accessor default-tempo :initform 120)
       (notation-var-list :initarg :notation-var-list :accessor notation-var-list
-                         :initform  '(acc-end acc-start bar dot dyn key legato-end legato-start meter mm modus 
-                                                   n pedal ph phrase-end phrase-start pr q rest rit-end rit-start 
-                                                   slur staccato staccato-end staccato-start text tie tuple) )
+                         :initform  '(accent-c accent-m accent-h acc-end acc-start 
+                                               bar dot dyn key legato-end legato-start meter mm modus 
+                                               n pedal ph phrase-end phrase-start pr q rest rit-end rit-start 
+                                               slur staccato staccato-end staccato-start text tie tuple) )
       (performance-var-list :initarg :performance-var-list :accessor performance-var-list
                             :initform '(dc dr dro f0 ndr pedal-perf sl va vf) )
       (midifile-input-articulation-threshold :initarg :midifile-input-articulation-threshold
