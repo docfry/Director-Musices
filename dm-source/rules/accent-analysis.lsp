@@ -433,6 +433,51 @@
   (mark-melodic-accent-retain-max-of-three)
   )
 
+
+;with removal of stepwise motion
+(defun mark-melodic-accent ()
+  (rem-all 'accent-c)
+  (rem-all :melsal1)
+  (rem-all :melsal2)
+  (rem-all :melsal3)
+  (mark-running-mean-2-bars-or-10-notes) 
+     (each-note-if
+      (not (first?))
+      (not (this 'rest))
+      (not (prev 'rest))
+      (then
+       (let ((f0-dist-mean (- (this-f0) (this :f0-run-mean)))
+             (f0-int (- (this-f0) (prev-f0))) )
+         (if (> f0-dist-mean 0) (set-this :melsal1 f0-dist-mean))      ;above mean
+         (if (<= f0-dist-mean 0) (set-this :melsal1 (abs (* f0-dist-mean 0.7)))) ;below mean
+         (if (> f0-int 0) (set-this :melsal2 f0-int))                  ;rising interval
+         (if (<= f0-int 0) (set-this :melsal2 (abs (* f0-int 0.2)))) ) ;falling interval
+         (set-this :melsal3 (* (this :melsal1) (this :melsal2)))
+       (let ((salience (/ (sqrt (this :melsal3)) 2.5)))
+         (if (> salience 0) (set-this 'accent-c salience)) )
+       ))
+  (mark-melodic-accent-remove-stepwise)
+  (mark-melodic-accent-retain-max-of-three)
+  )
+; put the salience to zero if middle of stepwise motion up or down
+(defun mark-melodic-accent-remove-stepwise ()
+  (each-note-if
+   (not (first?))
+   (not (last?))
+   (this 'accent-c)
+   (not (this 'rest))
+   (not (prev 'rest))
+   (not (next 'rest))
+   (then
+    (let ((int1 (- (this-f0) (prev-f0)))
+          (int2 (- (next-f0) (this-f0))))
+    (if (or (and (or (= int1 1) (= int1 2))
+                  (or (= int2 1) (= int2 2)) )
+            (and (or (= int1 -1) (= int1 -2))
+                  (or (= int2 -1) (= int2 -2)) ))
+        (set-this 'accent-c 0) )))))
+
+
 ; keeps only the most salient peak in the context of three notes
 (defun mark-melodic-accent-retain-max-of-three ()
   (each-note-if
