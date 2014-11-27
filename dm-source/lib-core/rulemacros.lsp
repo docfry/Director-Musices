@@ -643,13 +643,13 @@
 
 (defun first? () (= *i* 0))
 
-;;;(defun first+1? ()
-;;;  (if (= *i* 1) t nil) )
 (defun first+1? () (= *i* 1))
+(defun first+2? () (= *i* 2))
+(defun first+3? () (= *i* 3))
 
-;;;(defun last-1? ()
-;;;  (if (= (1- (i?last)) *i*) t nil) )
 (defun last-1? () (= (1- (i?last)) *i*))
+(defun last-2? () (= (- (i?last) 2) *i*))
+(defun last-3? () (= (- (i?last) 3) *i*))
 
 ;returns the number of the note with property prop after note i
 ;if not found ->nil

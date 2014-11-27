@@ -10,13 +10,13 @@
 ;;  set-platform-dependant-variables-PD ()
 ;;  load-utilities-PD
 ;;  advice (msg &key (mode 'win)(title 'Message))
+;;  141126/af added show-dialog-for-selecting-directory (only lispworks so far)
 
 (in-package :dm)
 
 ;; ---------------------------------
 ;;   SHOW-DIALOG-FOR-OPENING-FILES
 ;; ---------------------------------
-
 
 (defun show-dialog-for-opening-files-PD (message &key directory extensions mac-file-type)
   #+:MCL
@@ -41,9 +41,7 @@
    message
    :pathname directory
    ;:filters extensions ;doesnt work, the list format different
-  )
-  )
-
+  ) )
 
 ;; --------------------------------
 ;;   SHOW-DIALOG-FOR-SAVING-FILES
@@ -51,13 +49,6 @@
 ;;
 ;; please note that the message string is required
 ;;
-; FOR MAC - TO BE REMOVED
-;   (setq *save-definitions* (if (get-dm-var 'demo-version) nil t)
-;      *save-local-symbols* (if (get-dm-var 'demo-version) nil t)
-;      *fasl-save-local-symbols* (if (get-dm-var 'demo-version) nil t)
-;      *print-case* :downcase
-;      *paste-with-styles* nil)
-;
 
 (defun show-dialog-for-saving-files-PD (message &key directory extensions)
    #+:MCL
@@ -77,10 +68,34 @@
    message
    :operation :save
    :pathname directory
-   )
-  )
+   ) )
+
+;; ---------------------------------
+;;   SHOW-DIALOG-FOR-SELECTING-DIRECTORY
+;; ---------------------------------
 
 
+(defun show-dialog-for-selecting-directory (message &key directory)
+  ;(print directory)
+  #+:MCL
+  (error "show-dialog-for-selecting-directory not implemented for MCL")
+ ;  (choose-file-dialog  
+ ;   :mac-file-type  mac-file-type
+ ;   :button-string message
+ ;   :directory nil)
+  #+(and :mswindows :allegro)
+  (error "show-dialog-for-selecting-directory not implemented for allegro CL")
+;  (ask-user-for-existing-pathname 
+;   message
+;   :host (if (pathnamep directory) (namestring directory) directory)
+ ;  :allowed-types extensions
+ ;  :change-current-directory-p t
+ ;  :share-aware-p t)
+  #+:lispworks
+  (capi:prompt-for-directory
+   message
+   :pathname directory
+  ) )
 
 ;; ----------
 ;;   ADVICE

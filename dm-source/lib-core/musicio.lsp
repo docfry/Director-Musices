@@ -101,6 +101,7 @@
      ))
 
 ;;just as above but with file input
+#-:lispworks
 (defun load-score-fpath (fpath)
      (with-waiting-cursor 
                   (read-active-score-from-file fpath)
@@ -111,7 +112,19 @@
                   (redraw-display-windows) ;def in drawProp
                   (redraw-music-windows) ;def in drawPolyNotes
                   ))
-   
+
+#+:lispworks
+(defun load-score-fpath (fpath)
+     (with-waiting-cursor 
+                  (read-active-score-from-file fpath)
+                  (set-dm-var 'music-directory (directory-namestring fpath))
+                  (setf (nickname *active-score*) (file-namestring fpath))
+                  ;(make-or-update-edit-music-window) ;def in musicdialog
+                  (init-music)
+                  ;(redraw-display-windows) ;def in drawProp
+                  ;(redraw-music-windows) ;def in drawPolyNotes
+                  ))
+
 ;; --------------------       
 ;;   LOAD-PERFORMANCE
 ;; --------------------
