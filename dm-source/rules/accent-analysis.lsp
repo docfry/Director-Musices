@@ -1,6 +1,7 @@
 ;; Bisesi/Parncutt accent rules - Analysis of accent positions
 
 ;;130108/af started on metrical accent
+;;170131/af added compensation for disklavier (bottom of file)
 
 
 (in-package :dm)
@@ -648,3 +649,23 @@
             (save-performance-fpath (merge-pathnames (make-pathname :type "per") fpath))
             (save-performance-midifile1-fpath (merge-pathnames (make-pathname :type "mid") fpath))
             ))))))
+
+;-------------- calibration for Disklavier --------------
+;;hand-adjusted compensations for differences across the keyboard as estimated by Erica
+;;170131
+
+(defun disklavier-compensation (k)
+  (each-note-if
+    (this-f0)
+    (>= (this-f0) 36)
+    (<= (this-f0) 96)
+    (then
+      (add-this 'sl (* k (nth (- (this-f0) 36) *disklavier-compensation*)))
+      )))
+
+;; list starts at F0=36
+(setq *disklavier-compensation*
+      '(0.5 -0.2 -0.75 -0.75 -0.55 0.65 -0.4 -1.2 -0.75 -1.8 -0.6 0.05 0.67 -1.3 0 -0.2 0.25 1.1 1 -0.25 0.2 -0.2 -0.2 -1.48 3.35 2.5 0.2
+            -0.1 -0.7 -0.55 0 0.3 1.95 0.3 -0.15 -0.9 1.4 1.4 1.09 2.3 1.24 2.3 3.4 2.3 2.9 2.55 2.2 2.9 5 3.1 3.2 3.2 6.1 2.9 2.9 3.3
+            4.15 3.7 4.65 4.2 4 ))
+
