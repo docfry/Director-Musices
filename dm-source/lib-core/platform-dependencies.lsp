@@ -40,6 +40,7 @@
   (capi:prompt-for-file 
    message
    :pathname directory
+   :filter "*.*"
    ;:filters extensions ;doesnt work, the list format different
   ) )
 

@@ -153,7 +153,7 @@
      )))
 
 (defun scale-beat-salience ()
-  (let ((m 2) (s 1.65) ; mean and SD for gauss distribution
+  (let ((m 1.0) (s 1.65) ; mean and SD for gauss distribution
         beat0dr beat1dr beat2dr beat3dr )
     (each-note
      (when (this :beat0dr) (setq beat0dr (/ (this :beat0dr) 1000.0)))
@@ -458,7 +458,12 @@
        ))
   (mark-melodic-accent-remove-stepwise)
   (mark-melodic-accent-retain-max-of-three)
+  (rem-all :melsal1)
+  (rem-all :melsal2)
+  (rem-all :melsal3)
+  (rem-all :f0-run-mean)
   )
+
 ; put the salience to zero if middle of stepwise motion up or down
 (defun mark-melodic-accent-remove-stepwise ()
   (each-note-if
