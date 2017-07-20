@@ -8,6 +8,9 @@
 ;; 9111 Transfered to CL2
 ;; 9702/AF Completely new version for the new data structure
 ;; 0008/af fixed all set-dr access functions
+;; 170719/af make-group-meta-track: some strange problem with using lispworks
+;;    works only when it is recompiled/evaluated
+
 
 (in-package :dm)
 
@@ -170,6 +173,8 @@
 ;returns a meta-track containing a list of group sub-tracks
 ;begin and end statements are evaluated and the usual access functions are permitted
 ;assuming "this" as the position of the first and last segment, respectively
+;170719/af make-group-meta-track: some strange problem with using lispworks
+;works only when it is recompiled/evaluated
 (defun make-group-meta-track (track &key begin end)
    (let ((meta-track (make-instance 'meta-track :trackname "group meta track"))
          (sub-track (make-instance 'basic-track)) )
