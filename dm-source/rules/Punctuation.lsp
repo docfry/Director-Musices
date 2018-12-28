@@ -73,7 +73,30 @@
         (until (not (iget i 'rest)) (decf i))
         (iadd-phrase-end-level i 7)
         ))) )
-      
+
+;;181226/af new version fixing a bug with rests in the end
+(defun mark-phrase7-from-punct ()
+  (each-note
+    (when (not (this 'rest))
+      (iadd-phrase-start-level *i* 7)
+      (exit-track) ))
+  (each-note-if
+    (this :weight)
+    (then
+      (iadd-phrase-end-level *i* 7)
+      (when (i?next *i* :weight)
+        (let ((i (+ *i* 1)))
+          (until (not (iget i 'rest)) (incf i))
+          (iadd-phrase-start-level i 7) )
+        )))
+  (each-note-if
+    (last?)
+    (then
+      (let ((i *i*))
+        (until (not (iget i 'rest)) (decf i))
+        (iadd-phrase-end-level i 7)
+        ))) )
+    
 
 (defun iadd-phrase-start-level (i level)
   (if (and (iget i 'phrase-start) 
