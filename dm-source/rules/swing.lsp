@@ -2,6 +2,7 @@
 
 ;;created: 990526 Anders Friberg
 ;;000303/af added first-note-in-measure-amp
+;;200310/af started to work on this again - almost exactly 20 years later!
 
 
 
@@ -178,6 +179,7 @@
       (rem-all :offbeat)
   ))
 
+;200312/af will not generate the right offset sync for eight notes since the swing ratio is same as for soloist
 (defun swing-tempo-prop-bass (quant &key trackname)
    (let ((beat-dr)
          (swing-ratio)
@@ -204,7 +206,8 @@
       (rem-all :offbeat)
   ))
 
-
+;combine all three
+;Use "no sync" option in rule palette
 (defun ensemble-swing (quant &key drums solo bass)
    (swing-tempo-prop-drums quant :trackname drums)
     (swing-tempo-prop-soloist quant :trackname solo)
