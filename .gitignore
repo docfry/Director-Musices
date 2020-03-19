@@ -3,6 +3,7 @@
 *.xfasl
 *.fasl
 *.lsp~
+*.DS_Store
 
 
 # OS generated files #
