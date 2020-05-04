@@ -2,7 +2,7 @@
 
 ;;created: 990526 Anders Friberg
 ;;000303/af added first-note-in-measure-amp
-;;200310/af started to work on this again - almost exactly 20 years later!
+;;200310/af started to work on this again - almost exactly 20 years later as last comment!
 
 
 
@@ -145,6 +145,8 @@
     ))
 
 ;delay amount according to soloist regression line in paper with quant = 1
+;restrict to only 1/8 notes or longer!!!
+;only eight notes or longer are affected - other note values need to be modeled separately
 (defun swing-tempo-prop-beat-delay-solo (quant &key trackname)
   (let ((beat-delay))
     (mark-beat)
@@ -155,7 +157,10 @@
           (when (this 'mm)
             (setq beat-delay (* quant (- 95.68 (* 0.2718 (this 'mm)))))  ;beat delay
             )
-          (when (and (this :beat) (not (first?)))
+          (when (and (this :beat) 
+                     (not (first?))
+                     (>= (get-note-value-fraction *i*) 1/8) ;only on eight notes or longer
+                     (>= (get-note-value-fraction (- *i* 1)) 1/8) ) ; also prev note
             (add-this 'dr (- beat-delay))
             (add-prev 'dr beat-delay)
             ))
