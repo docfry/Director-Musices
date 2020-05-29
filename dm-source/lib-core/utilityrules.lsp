@@ -204,6 +204,7 @@
 ;; ---------------------
 ;;
 
+;bar and meter need to be marked on first note of each track
 (defun mark-offbeat ()
   (let ((beat-value 4) ack-value)
     (each-note             ;mark beat
