@@ -122,6 +122,7 @@
 ;-----------------------------------------------------
 
 ; apply swing ratio proportional to tempo with drums setting 
+#|
 (defun swing-tempo-prop-all (quant)
   (let ((beat-dr)
         (swing-ratio)
@@ -143,10 +144,37 @@
       )
     (rem-all :offbeat)
     ))
+    |#
+
+(defun swing-tempo-prop-all (quant)
+  (let ((beat-dr)
+        (swing-ratio)
+        (dr-percent )
+        )
+    (mark-offbeat)
+    (each-note
+      (when (this 'mm)
+        (setq beat-dr (/ 60000.0 (this 'mm)))
+        ;(print beat-dr)
+        (setq swing-ratio (- 4.9396 (* 0.0124 (this 'mm))))
+        (setq dr-percent (/ (- swing-ratio 1.0) (+ swing-ratio 1.0)))
+        )
+      (when (and (this :offbeat) 
+                     (not (first?))
+                     (>= (get-note-value-fraction *i*) 1/8) ;only on eight notes or longer
+                     (>= (get-note-value-fraction (- *i* 1)) 1/8) ) ; also prev note
+        (let ((addval (* (/ beat-dr 2.0) dr-percent quant)))
+          (add-this 'dr (- addval))
+          (add-prev 'dr addval)
+          ))
+      )
+    (rem-all :offbeat)
+    ))
 
 ;delay amount according to soloist regression line in paper with quant = 1
 ;restrict to only 1/8 notes or longer!!!
 ;only eight notes or longer are affected - other note values need to be modeled separately
+#|
 (defun swing-tempo-prop-beat-delay-solo (quant &key trackname)
   (let ((beat-delay))
     (mark-beat)
@@ -166,6 +194,33 @@
             ))
         ))
     (rem-all :beat)
+    ))
+    |#
+
+;new method preserving all triplets and 16ths etc.
+;Assume that the drum swing (swing-tempo-prop-all) is applied to everything as before
+;Step 1. Delay the whole track with the beat delay
+;Step 2.  Move all eight note offsets back to the beat delay
+(defun swing-tempo-prop-beat-delay-solo (quant &key trackname)
+  (let ((beat-delay))
+    (mark-offbeat)
+    (each-track
+      (when (and trackname
+                 (string-equal (get-track-var 'trackname) trackname) )
+        (each-note
+          (when (this 'mm)
+            (setq beat-delay (* quant (- 95.68 (* 0.2718 (this 'mm)))))  ;beat delay
+            (add-this 'dr beat-delay) ;step 1
+            )
+          (when (and (this :offbeat) 
+                     (not (first?))
+                     (>= (get-note-value-fraction *i*) 1/8) ;only on eight notes or longer
+                     (>= (get-note-value-fraction (- *i* 1)) 1/8) ) ; also prev note
+            (add-this 'dr beat-delay)
+            (add-prev 'dr (- beat-delay))
+            ))
+        ))
+    (rem-all :offbeat)
     ))
 
 ;delay amount according to bass measurements (?)
