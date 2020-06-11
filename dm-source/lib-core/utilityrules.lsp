@@ -698,6 +698,10 @@
 (defun scale-sound-level (db) 
    (each-note-if (not (this 'rest)) (then (add-this 'sl db))))
 
+;factor=1 -> no change
+(defun scale-sound-level-range (factor) 
+   (each-note-if (this 'sl) (set-this 'sl (* (this 'sl) factor))))
+
 
 
 ;---------- normalize --------------------------------------
