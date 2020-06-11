@@ -50,8 +50,8 @@
   (convert-old-note-format)
   (convert-note-value-to-dots)
   ;(convert-chord)
-  (if (get-dm-var 'init-music-include-dynamics)
-     (set-dynamics 1))
+  (if (get-dm-var 'init-music-include-dynamics) (set-dynamics 1))
+  (set-accent 1)
   ;(set-first 'va 0)
   ;(set-first 'dc 0)
   ;(set-first 'vol 0)
@@ -199,6 +199,24 @@
         (add-this 'sl dsl)
         (add-this 'nsl dsl) )
       )))
+
+;; ----------------
+;;   SET-ACCENT
+;; ----------------
+;;
+;;distance defines the distance between the accent marking in dB
+;;default 2.5 dB per step.
+(defun set-accent (quant)
+  (let ((distance (* 4 quant))) ;dB
+     (each-note-if
+       (this 'accent)
+       (not (this 'rest))
+       (this 'sl) 
+       (this 'nsl)
+       (then
+         (add-this 'sl (* distance (this 'accent)))
+         (add-this 'nsl (* distance (this 'accent)))
+         ))))
 
 ;;
 ;; ----------------------
