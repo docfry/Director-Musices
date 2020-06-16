@@ -254,6 +254,24 @@
           (add-this 'dr ms) 
           )))))
 
+;adds a SL accent on every 8th note offbeat 
+(defun swing-accent-offbeats (quant &key trackname)
+  (mark-offbeat)
+  (each-track
+    (when (and trackname
+               (string-equal (get-track-var 'trackname) trackname) )
+      (each-note-if
+        (not (this 'rest))
+        (this :offbeat)
+        (= (get-note-value-fraction *i*) 1/8) ;only on eight notes
+        (then
+         (add-this 'sl (* quant 3.0))
+          ))))
+  (rem-all :offbeat)
+  )
+
+
+
 
 ;----------------------------------------------------------
 ;---- original way of changing the swing prop to tempo-----
