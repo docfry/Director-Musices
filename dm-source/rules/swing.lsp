@@ -3,6 +3,7 @@
 ;;created: 990526 Anders Friberg
 ;;000303/af added first-note-in-measure-amp
 ;;200310/af started to work on this again - almost exactly 20 years later as last comment!
+;;200914 changed all rule names for tempo prop timing
 
 
 
@@ -146,7 +147,7 @@
     ))
     |#
 
-(defun swing-tempo-prop-all (quant)
+(defun swing-ratio-tempo-prop-all-old (quant)
   (let ((beat-dr)
         (swing-ratio)
         (dr-percent )
@@ -160,9 +161,35 @@
         (setq dr-percent (/ (- swing-ratio 1.0) (+ swing-ratio 1.0)))
         )
       (when (and (this :offbeat) 
-                     (not (first?))
-                     (>= (get-note-value-fraction *i*) 1/8) ;only on eight notes or longer
-                     (>= (get-note-value-fraction (- *i* 1)) 1/8) ) ; also prev note
+                 (not (first?))
+                 (>= (get-note-value-fraction *i*) 1/8) ;only on eight notes or longer
+                 (>= (get-note-value-fraction (- *i* 1)) 1/8) ) ; also prev note
+        (let ((addval (* (/ beat-dr 2.0) dr-percent quant)))
+          (add-this 'dr (- addval))
+          (add-prev 'dr addval)
+          ))
+      )
+    (rem-all :offbeat)
+    ))
+
+; new version according to 2020 paper
+(defun swing-ratio-tempo-prop-all (quant)
+  (let ((beat-dr)
+        (swing-ratio)
+        (dr-percent) )
+    (mark-offbeat)
+    (each-note
+      (when (this 'mm)
+        (setq beat-dr (/ 60000.0 (this 'mm)))
+        ;(print beat-dr)
+        (setq swing-ratio (+ (* 0.01 (this 'mm)) 4.1019))
+        (if (> swing-ratio 3.1019) (setq swing-ratio 3.1019)) ;boundaries according to 2020 paper
+        (if (< swing-ratio 1) (setq swing-ratio 1))
+        (setq dr-percent (/ (- swing-ratio 1.0) (+ swing-ratio 1.0))) )
+      (when (and (this :offbeat) 
+                 (not (first?))
+                 (>= (get-note-value-fraction *i*) 1/8) ;only on eight notes or longer
+                 (>= (get-note-value-fraction (- *i* 1)) 1/8) ) ; also prev note
         (let ((addval (* (/ beat-dr 2.0) dr-percent quant)))
           (add-this 'dr (- addval))
           (add-prev 'dr addval)
@@ -201,7 +228,7 @@
 ;Assume that the drum swing (swing-tempo-prop-all) is applied to everything as before
 ;Step 1. Delay the whole track with the beat delay
 ;Step 2.  Move all eight note offsets back to the beat delay
-(defun swing-tempo-prop-beat-delay-solo (quant &key trackname)
+(defun swing-beat-delay-tempo-prop-solo-old (quant &key trackname)
   (let ((beat-delay))
     (mark-offbeat)
     (each-track
@@ -223,8 +250,31 @@
     (rem-all :offbeat)
     ))
 
+;new version following the description in the 2020 paper
+(defun swing-beat-delay-tempo-prop-solo (quant &key trackname)
+  (let ((beat-delay))
+    (mark-offbeat)
+    (each-track
+      (when (and trackname
+                 (string-equal (get-track-var 'trackname) trackname) )
+        (each-note
+          (when (this 'mm)
+            (setq beat-delay (* quant (- 107.17 (* 0.3078 (this 'mm)))))  ;beat delay
+            (add-this 'dr beat-delay) ;step 1
+            )
+          (when (and (this :offbeat) 
+                     (not (first?))
+                     (>= (get-note-value-fraction *i*) 1/8) ;only on eight notes or longer
+                     (>= (get-note-value-fraction (- *i* 1)) 1/8) ) ; also prev note
+            (add-this 'dr beat-delay)
+            (add-prev 'dr (- beat-delay))
+            ))
+        ))
+    (rem-all :offbeat)
+    ))
+
 ;delay amount according to bass measurements (?)
-(defun swing-tempo-prop-beat-delay-bass (quant &key trackname)
+(defun swing-beat-delay-tempo-prop-bass-old (quant &key trackname)
   (let ((beat-delay))
     (mark-beat)
     (each-track
@@ -241,6 +291,31 @@
         ))
     (rem-all :beat)
     ))
+
+;new version according to paper
+;reformulated as the solo track
+(defun swing-beat-delay-tempo-prop-bass (quant &key trackname)
+  (let ((beat-delay))
+    (mark-offbeat)
+    (each-track
+      (when (and trackname
+                 (string-equal (get-track-var 'trackname) trackname) )
+        (each-note
+          (when (this 'mm)
+            (setq beat-delay (* quant (- 23.279 (* 0.0536 (this 'mm)))))  ;beat delay
+            (add-this 'dr beat-delay) ;step 1
+            )
+          (when (and (this :offbeat) 
+                     (not (first?))
+                     (>= (get-note-value-fraction *i*) 1/8) ;only on eight notes or longer
+                     (>= (get-note-value-fraction (- *i* 1)) 1/8) ) ; also prev note
+            (add-this 'dr beat-delay)
+            (add-prev 'dr (- beat-delay))
+            ))
+        ))
+    (rem-all :offbeat)
+    ))
+
 
 ;just adds a delay in ms to the first note of the track
 ;for testing
@@ -276,7 +351,7 @@
 ;----------------------------------------------------------
 ;---- original way of changing the swing prop to tempo-----
 ;----------------------------------------------------------
-
+#|
 (defun swing-tempo-prop-drums (quant &key trackname)
   (let ((beat-dr)
         (swing-ratio)
@@ -375,6 +450,8 @@
   (swing-tempo-prop-soloist quant :trackname solo)
   (swing-tempo-prop-bass quant :trackname bass)
   )
+  
+|#
 
 ;increase sl at offbeats
 ;k=1 means 3dB increase
