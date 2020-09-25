@@ -173,6 +173,8 @@
     ))
 
 ; new version according to 2020 paper
+; 200925 corrected a bug - minus sign added to slope
+#|
 (defun swing-ratio-tempo-prop-all (quant)
   (let ((beat-dr)
         (swing-ratio)
@@ -182,7 +184,7 @@
       (when (this 'mm)
         (setq beat-dr (/ 60000.0 (this 'mm)))
         ;(print beat-dr)
-        (setq swing-ratio (+ (* 0.01 (this 'mm)) 4.1019))
+        (setq swing-ratio (+ (* -0.01 (this 'mm)) 4.1019))
         (if (> swing-ratio 3.1019) (setq swing-ratio 3.1019)) ;boundaries according to 2020 paper
         (if (< swing-ratio 1) (setq swing-ratio 1))
         (setq dr-percent (/ (- swing-ratio 1.0) (+ swing-ratio 1.0))) )
@@ -197,6 +199,37 @@
       )
     (rem-all :offbeat)
     ))
+    |#
+    
+;added keywords
+;skipped lower boundary
+(defun swing-ratio-tempo-prop-all (quant &key (slope -0.01) (constant 4.1019))
+  (let ((beat-dr)
+        (swing-ratio)
+        (dr-percent) )
+    (mark-offbeat)
+    (each-note
+      (when (this 'mm)
+        (setq beat-dr (/ 60000.0 (this 'mm)))
+        ;(print beat-dr)
+        (setq swing-ratio (+ (* slope (this 'mm)) constant))
+        ;(print-ll "swing ratio=" swing-ratio " mm=" (this 'mm) " slope=" slope " constant=" constant)
+        ;(if (<= (this 'mm) 100) (setq swing-ratio (+ (* slope 100) constant))) ;boundaries according to 2020 paper
+        (if (< swing-ratio 1) (setq swing-ratio 1))
+        (print-ll "swing-ratio-tempo-prop-all: final swing ratio = " swing-ratio)
+        (setq dr-percent (/ (- swing-ratio 1.0) (+ swing-ratio 1.0))) )
+      (when (and (this :offbeat) 
+                 (not (first?))
+                 (>= (get-note-value-fraction *i*) 1/8) ;only on eight notes or longer
+                 (>= (get-note-value-fraction (- *i* 1)) 1/8) ) ; also prev note
+        (let ((addval (* (/ beat-dr 2.0) dr-percent quant)))
+          (add-this 'dr (- addval))
+          (add-prev 'dr addval)
+          ))
+      )
+    (rem-all :offbeat)
+    ))
+
 
 ;delay amount according to soloist regression line in paper with quant = 1
 ;restrict to only 1/8 notes or longer!!!
@@ -251,6 +284,7 @@
     ))
 
 ;new version following the description in the 2020 paper
+#|
 (defun swing-beat-delay-tempo-prop-solo (quant &key trackname)
   (let ((beat-delay))
     (mark-offbeat)
@@ -261,6 +295,29 @@
           (when (this 'mm)
             (setq beat-delay (* quant (- 107.17 (* 0.3078 (this 'mm)))))  ;beat delay
             (add-this 'dr beat-delay) ;step 1
+            )
+          (when (and (this :offbeat) 
+                     (not (first?))
+                     (>= (get-note-value-fraction *i*) 1/8) ;only on eight notes or longer
+                     (>= (get-note-value-fraction (- *i* 1)) 1/8) ) ; also prev note
+            (add-this 'dr beat-delay)
+            (add-prev 'dr (- beat-delay))
+            ))
+        ))
+    (rem-all :offbeat)
+    ))
+    |#
+;added keyword parameters for linear regression
+(defun swing-beat-delay-tempo-prop-solo (quant &key trackname (slope -0.3078) (constant 107.17))
+  (let ((beat-delay))
+    (mark-offbeat)
+    (each-track
+      (when (and trackname
+                 (string-equal (get-track-var 'trackname) trackname) )
+        (each-note
+          (when (this 'mm)
+            (setq beat-delay (* quant (+ (* slope (this 'mm)) constant)))  ;beat delay
+            (add-this 'dr beat-delay) ;step 1 -assumes a tempo mark only on first note!
             )
           (when (and (this :offbeat) 
                      (not (first?))
@@ -294,6 +351,7 @@
 
 ;new version according to paper
 ;reformulated as the solo track
+#|
 (defun swing-beat-delay-tempo-prop-bass (quant &key trackname)
   (let ((beat-delay))
     (mark-offbeat)
@@ -315,7 +373,29 @@
         ))
     (rem-all :offbeat)
     ))
-
+    |#
+;with regression parameters
+(defun swing-beat-delay-tempo-prop-bass (quant &key trackname (slope -0.0536) (constant 23.279))
+  (let ((beat-delay))
+    (mark-offbeat)
+    (each-track
+      (when (and trackname
+                 (string-equal (get-track-var 'trackname) trackname) )
+        (each-note
+          (when (this 'mm)
+            (setq beat-delay (* quant (+ (* slope (this 'mm)) constant)))  ;beat delay
+            (add-this 'dr beat-delay) ;step 1
+            )
+          (when (and (this :offbeat) 
+                     (not (first?))
+                     (>= (get-note-value-fraction *i*) 1/8) ;only on eight notes or longer
+                     (>= (get-note-value-fraction (- *i* 1)) 1/8) ) ; also prev note
+            (add-this 'dr beat-delay)
+            (add-prev 'dr (- beat-delay))
+            ))
+        ))
+    (rem-all :offbeat)
+    ))
 
 ;just adds a delay in ms to the first note of the track
 ;for testing
