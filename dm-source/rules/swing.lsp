@@ -203,7 +203,7 @@
     
 ;added keywords
 ;skipped lower boundary
-(defun swing-ratio-tempo-prop-all (quant &key (slope -0.01) (constant 4.1019))
+#|(defun swing-ratio-tempo-prop-all (quant &key (slope -0.01) (constant 4.1019))
   (let ((beat-dr)
         (swing-ratio)
         (dr-percent) )
@@ -226,6 +226,31 @@
           (add-this 'dr (- addval))
           (add-prev 'dr addval)
           ))
+      )
+    (rem-all :offbeat)
+    ))
+|#
+; redefined according to paper
+(defun swing-ratio-tempo-prop-all (k &key (slope -0.01) (constant 4.1019))
+  (let ((beat-dr)
+        (swing-ratio) )
+    (mark-offbeat)
+    (each-note
+      (when (this 'mm)
+        (setq beat-dr (/ 60000.0 (this 'mm)))
+        (setq swing-ratio (+ (* slope (this 'mm)) constant))
+        ;(if (<= (this 'mm) 100) (setq swing-ratio (+ (* slope 100) constant))) ;boundaries according to 2020 paper
+        (if (< swing-ratio 1) (setq swing-ratio 1))
+        (setq deltat (* k (* (/ beat-dr 2.0) (/ (- swing-ratio 1.0) (+ swing-ratio 1.0)))))
+        (print-ll "swing-ratio-tempo-prop-all: final swing ratio (k=1) = " swing-ratio " deltat (resulting value) = " deltat)
+	     )
+      (when (and (this :offbeat) 
+                 (not (first?))
+                 (>= (get-note-value-fraction *i*) 1/8) ;only on eight notes or longer
+                 (>= (get-note-value-fraction (- *i* 1)) 1/8) ) ; also prev note
+          (add-this 'dr (- deltat))
+          (add-prev 'dr deltat)
+          )
       )
     (rem-all :offbeat)
     ))
@@ -308,7 +333,7 @@
     ))
     |#
 ;added keyword parameters for linear regression
-(defun swing-beat-delay-tempo-prop-solo (quant &key trackname (slope -0.3078) (constant 107.17))
+(defun swing-beat-delay-tempo-prop-solo (k &key trackname (slope -0.3078) (constant 107.17))
   (let ((beat-delay))
     (mark-offbeat)
     (each-track
@@ -316,8 +341,9 @@
                  (string-equal (get-track-var 'trackname) trackname) )
         (each-note
           (when (this 'mm)
-            (setq beat-delay (* quant (+ (* slope (this 'mm)) constant)))  ;beat delay
+            (setq beat-delay (* k (+ (* slope (this 'mm)) constant)))  ;beat delay
             (add-this 'dr beat-delay) ;step 1 -assumes a tempo mark only on first note!
+            (print-ll "swing-beat-delay-tempo-prop-solo: beat delay = " beat-delay)
             )
           (when (and (this :offbeat) 
                      (not (first?))
@@ -375,7 +401,7 @@
     ))
     |#
 ;with regression parameters
-(defun swing-beat-delay-tempo-prop-bass (quant &key trackname (slope -0.0536) (constant 23.279))
+(defun swing-beat-delay-tempo-prop-bass (k &key trackname (slope -0.0536) (constant 23.279))
   (let ((beat-delay))
     (mark-offbeat)
     (each-track
@@ -383,7 +409,8 @@
                  (string-equal (get-track-var 'trackname) trackname) )
         (each-note
           (when (this 'mm)
-            (setq beat-delay (* quant (+ (* slope (this 'mm)) constant)))  ;beat delay
+            (setq beat-delay (* k (+ (* slope (this 'mm)) constant)))  ;beat delay
+            (print-ll "swing-beat-delay-tempo-prop-bass: beat delay = " beat-delay)
             (add-this 'dr beat-delay) ;step 1
             )
           (when (and (this :offbeat) 
@@ -410,7 +437,7 @@
           )))))
 
 ;adds a SL accent on every 8th note offbeat 
-(defun swing-accent-offbeats (quant &key trackname)
+(defun swing-offbeat-accent (quant &key trackname)
   (mark-offbeat)
   (each-track
     (when (and trackname
@@ -535,7 +562,7 @@
 
 ;increase sl at offbeats
 ;k=1 means 3dB increase
-(defun offbeat-sl (quant &key trackname)
+(defun offbeat-sl (k &key trackname)
   (mark-offbeat)
   (each-track
     (when (or (not trackname)
@@ -543,7 +570,7 @@
       (each-note-if
         (this :offbeat)
         (then
-          (add-this 'sl (* quant 3)) ))))
+          (add-this 'sl (* k 3)) ))))
   (rem-all :offbeat) )
 
 
