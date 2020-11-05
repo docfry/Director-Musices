@@ -246,7 +246,8 @@
 	     )
       (when (and (this :offbeat) 
                  (not (first?))
-                 (>= (get-note-value-fraction *i*) 1/8) ;only on eight notes or longer
+                 ;(>= (get-note-value-fraction *i*) 1/8) ;only on eight notes or longer
+                 (> (get-note-value-fraction *i*) 1/16) ;only on longer than sixteens notes
                  (>= (get-note-value-fraction (- *i* 1)) 1/8) ) ; also prev note
           (add-this 'dr (- deltat))
           (add-prev 'dr deltat)
@@ -347,7 +348,7 @@
             )
           (when (and (this :offbeat) 
                      (not (first?))
-                     (>= (get-note-value-fraction *i*) 1/8) ;only on eight notes or longer
+                     (> (get-note-value-fraction *i*) 1/16) ;only on longer than sixteens notes
                      (>= (get-note-value-fraction (- *i* 1)) 1/8) ) ; also prev note
             (add-this 'dr beat-delay)
             (add-prev 'dr (- beat-delay))
@@ -415,7 +416,7 @@
             )
           (when (and (this :offbeat) 
                      (not (first?))
-                     (>= (get-note-value-fraction *i*) 1/8) ;only on eight notes or longer
+                     (> (get-note-value-fraction *i*) 1/16) ;only on longer than sixteens notes
                      (>= (get-note-value-fraction (- *i* 1)) 1/8) ) ; also prev note
             (add-this 'dr beat-delay)
             (add-prev 'dr (- beat-delay))
@@ -435,6 +436,26 @@
         (then
           (add-this 'dr ms) 
           )))))
+
+;adds a delay in ms to all offbeat eight notes
+;trackname mandatory
+(defun swing-offbeat-delay-one-track-ms (offbeat-delay &key trackname)
+    (mark-offbeat)
+    (each-track
+      (when (and trackname
+                 (string-equal (get-track-var 'trackname) trackname) )
+        (each-note
+          (when (and (this :offbeat) 
+                     (not (first?))
+                     (> (get-note-value-fraction *i*) 1/16) ;only on longer than sixteens notes
+                     (>= (get-note-value-fraction (- *i* 1)) 1/8) ) ; also prev note
+            (add-this 'dr (- offbeat-delay))
+            (add-prev 'dr offbeat-delay)
+            ))
+        ))
+    (rem-all :offbeat)
+    )
+
 
 ;adds a SL accent on every 8th note offbeat 
 (defun swing-offbeat-accent (quant &key trackname)
