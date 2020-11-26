@@ -334,7 +334,8 @@
     ))
     |#
 ;added keyword parameters for linear regression
-(defun swing-beat-delay-tempo-prop-solo (k &key trackname (slope -0.3078) (constant 107.17))
+;201126/af changed regression parameters
+(defun swing-beat-delay-tempo-prop-solo (k &key trackname (slope -0.4101) (constant 125.1))
   (let ((beat-delay))
     (mark-offbeat)
     (each-track
@@ -473,6 +474,9 @@
   (rem-all :offbeat)
   )
 
+;----------------------------------------------------------
+;- applying the rules and generate midi files for paper----
+;----------------------------------------------------------
 
 
 
