@@ -1102,12 +1102,13 @@
 |#
 
 ;;y = 1E-05x4 + 0.0008x3 + 0.0402x2 + 2.6899x + 62.025
+;201203 Changed to 64 in the middle
 (defmethod sl-to-vel ((synt synt-kontakt2-piano) sl)
    (round (+ (* 0.00001 (expt sl 4))
                         (* 0.0008 (expt sl 3)) 
                         (* 0.0402 (expt sl 2)) 
                         (* 2.6899 sl) 
-                        62.025)
+                        64) ;original from measurements 62.025
           ))
 
 #| for testing

@@ -1,6 +1,7 @@
 
 # lisp stuff #
 *.xfasl
+*.64xfasl
 *.fasl
 *.lsp~
 *.DS_Store

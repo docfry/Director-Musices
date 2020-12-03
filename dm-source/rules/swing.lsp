@@ -233,7 +233,8 @@
 ; redefined according to paper
 (defun swing-ratio-tempo-prop-all (k &key (slope -0.01) (constant 4.1019))
   (let ((beat-dr)
-        (swing-ratio) )
+        (swing-ratio)
+        (deltat) )
     (mark-offbeat)
     (each-note
       (when (this 'mm)
@@ -475,8 +476,169 @@
   )
 
 ;----------------------------------------------------------
-;- applying the rules and generate midi files for paper----
+;- applying the rules and generate midi files for paper ---
 ;----------------------------------------------------------
+; This code should be run in LispWorks
+; It overwrites previous files with the same name so be careful
+; used for the music examples in the paper appendix
+
+
+(defun swing-generate-midifiles-all ()
+  (let ((fpath (show-dialog-for-selecting-directory "Choose output directory" )))
+    (if fpath
+        (let ((gm t))  ; a flag for transposing cymbal according to general midi used by Torbjorn in Logic
+        (progn
+          (load-score-fpath (merge-pathnames (make-pathname :name "Rich_3.mus") fpath))
+          (when gm (swing-set-ride-note-to-gm)(swing-transpose-bass-to-gm))
+          (swing-save-midi-fname fpath "1b-rich-nominal.mid")
+          (reset-music)
+          (rule-apply-list *swing-rich-model*)
+          (swing-save-midi-fname fpath "1c-rich-model.mid")
+           (reset-music)
+          (rule-apply-list *swing-default*)
+          (swing-save-midi-fname fpath "1d-rich-default.mid")
+
+          (load-score-fpath (merge-pathnames (make-pathname :name "Jarrett_3.mus") fpath))
+          (when gm (swing-set-ride-note-to-gm)(swing-transpose-bass-to-gm))
+          (rule-apply-list *swing-jarrett-model*)
+          (swing-save-midi-fname fpath "2b-jarrett-model.mid")
+          (reset-music)
+          (rule-apply-list *swing-rich-model*)
+          (swing-save-midi-fname fpath "2c-jarrett-rich.mid")
+           (reset-music)
+          (rule-apply-list *swing-default*)
+          (swing-save-midi-fname fpath "2d-jarrett-default.mid")
+
+          (load-score-fpath (merge-pathnames (make-pathname :name "Marsalis_3.mus") fpath))
+          (when gm (swing-set-ride-note-to-gm)(swing-transpose-bass-to-gm))
+          (rule-apply-list *swing-marsalis-nominal*)
+          (swing-save-midi-fname fpath "3b-marsalis-nominal.mid")
+          (reset-music)
+          (rule-apply-list *swing-marsalis-model*)
+          (swing-save-midi-fname fpath "3c-marsalis-model.mid")
+           (reset-music)
+          (rule-apply-list *swing-default*)
+          (swing-save-midi-fname fpath "3d-marsalis-default.mid")
+
+          (load-score-fpath (merge-pathnames (make-pathname :name "Kirkland_9.mus") fpath))
+          (when gm (swing-set-ride-note-to-gm)(swing-transpose-bass-to-gm))
+          (rule-apply-list *swing-kirkland-model*)
+          (swing-save-midi-fname fpath "4b-kirkland-model.mid")
+          (reset-music)
+          (rule-apply-list *swing-kirkland-rich*)
+          (swing-save-midi-fname fpath "4c-kirkland-rich.mid")
+           (reset-music)
+          (rule-apply-list *swing-kirkland-default*)
+          (swing-save-midi-fname fpath "4d-kirkland-default.mid")
+          )))))
+
+
+;just a help function
+(defun swing-save-midi-fname (fpath fname)
+  (save-performance-midifile1-fpath (merge-pathnames (make-pathname :name fname) fpath) ))
+
+;changing the ride to GM standard ie Eb3 in one track
+(defun swing-set-ride-note-to-gm (&key (trackname 'drums))
+  (each-track
+    (when (string-equal (get-track-var 'trackname) trackname)
+      (each-note-if
+        (this 'f0)
+        (set-this 'f0 51) )))) ;Eb3
+;changing the bass to GM standard ie transpose octave -1
+(defun swing-transpose-bass-to-gm (&key (trackname 'bass))
+  (each-track
+    (when (string-equal (get-track-var 'trackname) trackname)
+      (each-note-if
+        (this 'f0)
+        (add-this 'f0 -12) )))) ;octave
+
+
+(setq *swing-rich-model*
+      '(
+        (Swing-ratio-tempo-prop-all 1.058 )
+        (swing-beat-delay-tempo-prop-solo 1.077 :trackname "melody")
+        (swing-beat-delay-tempo-prop-bass 1 :trackname "bass")
+        (Swing-offbeat-delay-one-track-ms 7 :trackname "melody")
+        (swing-simple-delay-one-track-ms -20 :trackname "hihat")
+        (scale-sound-level-range 1.5 )
+        (swing-offbeat-accent -2 :trackname "drums")
+        (swing-offbeat-accent 1 :trackname "bass")
+        ))
+
+;used for all but kirkland
+(setq *swing-default*
+      '(
+        (Swing-ratio-tempo-prop-all 1 )
+        (swing-beat-delay-tempo-prop-solo 1 :trackname "melody")
+        (swing-beat-delay-tempo-prop-bass 1 :trackname "bass")
+        (Swing-offbeat-delay-one-track-ms 0 :trackname "melody")
+        (swing-simple-delay-one-track-ms -20 :trackname "hihat")
+        (scale-sound-level-range 1.5 )
+        (swing-offbeat-accent -2 :trackname "drums")
+        (swing-offbeat-accent 1 :trackname "bass")
+        ))
+
+(setq *swing-jarrett-model*
+      '(
+        (Swing-ratio-tempo-prop-all 1.024 )
+        (swing-beat-delay-tempo-prop-solo 1.24 :trackname "melody")
+        (swing-beat-delay-tempo-prop-bass 0.73 :trackname "bass")
+        (swing-offbeat-delay-one-track-ms 13 :trackname "melody")
+        (scale-sound-level-range 1.5)
+        (swing-offbeat-accent -2 :trackname "drums")
+        (swing-offbeat-accent 0 :trackname "bass")
+        ))
+
+(setq *swing-marsalis-nominal*
+      '(
+        (scale-sound-level-range 1.5)
+        (swing-offbeat-accent -2 :trackname "drums")
+        (swing-offbeat-accent 1 :trackname "bass")
+        ))
+(setq *swing-marsalis-model*
+      '(
+        (Swing-ratio-tempo-prop-all 0.6 )
+        (swing-beat-delay-tempo-prop-solo 1.71 :trackname "melody")
+        (swing-beat-delay-tempo-prop-bass 2.3 :trackname "bass")
+        (swing-offbeat-delay-one-track-ms 11 :trackname "melody")
+        (scale-sound-level-range 1.5)
+        (swing-offbeat-accent -2 :trackname "drums")
+        (swing-offbeat-accent 1 :trackname "bass")
+        ))
+
+(setq *swing-kirkland-model*
+      '(
+        (Swing-ratio-tempo-prop-all 0.99 )
+        (swing-beat-delay-tempo-prop-solo 1.45 :trackname "melody")
+        (swing-beat-delay-tempo-prop-bass 0.51 :trackname "bass")
+        (swing-offbeat-delay-one-track-ms 50 :trackname "melody")
+        (Swing-simple-delay-one-track-ms -20 :trackname "hihat")
+        (scale-sound-level-range 1.5 )
+        (swing-offbeat-accent 1 :trackname "drums")
+        (swing-offbeat-accent 1 :trackname "bass")
+        ))
+(setq *swing-kirkland-rich*
+      '(
+        (Swing-ratio-tempo-prop-all 1.058 )
+        (swing-beat-delay-tempo-prop-solo 1.077 :trackname "melody")
+        (swing-beat-delay-tempo-prop-bass 1 :trackname "bass")
+        (Swing-offbeat-delay-one-track-ms 7 :trackname "melody")
+        (swing-simple-delay-one-track-ms -20 :trackname "hihat")
+        (scale-sound-level-range 1.5 )
+        (swing-offbeat-accent 1 :trackname "drums")
+        (swing-offbeat-accent 1 :trackname "bass")
+        ))
+(setq *swing-kirkland-default*
+      '(
+        (Swing-ratio-tempo-prop-all 1 )
+        (swing-beat-delay-tempo-prop-solo 1 :trackname "melody")
+        (swing-beat-delay-tempo-prop-bass 1 :trackname "bass")
+        (swing-offbeat-delay-one-track-ms 0 :trackname "melody")
+        (Swing-simple-delay-one-track-ms -20 :trackname "hihat")
+        (scale-sound-level-range 1.5 )
+        (swing-offbeat-accent 1 :trackname "drums")
+        (swing-offbeat-accent 1 :trackname "bass")
+        ))
 
 
 
