@@ -2,13 +2,12 @@
 
 ;;created: 990526 Anders Friberg
 ;;000303/af added first-note-in-measure-amp
-;;200310/af started to work on this again - almost exactly 20 years later as last comment!
+;;200310/af started to work on this again with the new models - almost exactly 20 years later as last comment!
 ;;200914 changed all rule names for tempo prop timing
 
 
 
 ;----------measure marking-----------------------------
-
 
 ;;Coda wish
 (defun first-note-in-measure-amp (quant)
@@ -481,12 +480,13 @@
 ; This code should be run in LispWorks
 ; It overwrites previous files with the same name so be careful
 ; used for the music examples in the paper appendix
+; 210622 changed the scale-sound-level-range 1.5 to 1
 
 
 (defun swing-generate-midifiles-all ()
   (let ((fpath (show-dialog-for-selecting-directory "Choose output directory" )))
     (if fpath
-        (let ((gm t))  ; a flag for transposing cymbal according to general midi used by Torbjorn in Logic
+        (let ((gm nil))  ; a flag for transposing cymbal according to general midi used by Torbjorn in Logic
         (progn
           (load-score-fpath (merge-pathnames (make-pathname :name "Rich_3.mus") fpath))
           (when gm (swing-set-ride-note-to-gm)(swing-transpose-bass-to-gm))
@@ -560,7 +560,7 @@
         (swing-beat-delay-tempo-prop-bass 1 :trackname "bass")
         (Swing-offbeat-delay-one-track-ms 7 :trackname "melody")
         (swing-simple-delay-one-track-ms -20 :trackname "hihat")
-        (scale-sound-level-range 1.5 )
+        (scale-sound-level-range 1)
         (swing-offbeat-accent -2 :trackname "drums")
         (swing-offbeat-accent 1 :trackname "bass")
         ))
@@ -573,7 +573,7 @@
         (swing-beat-delay-tempo-prop-bass 1 :trackname "bass")
         (Swing-offbeat-delay-one-track-ms 0 :trackname "melody")
         (swing-simple-delay-one-track-ms -20 :trackname "hihat")
-        (scale-sound-level-range 1.5 )
+        (scale-sound-level-range 1)
         (swing-offbeat-accent -2 :trackname "drums")
         (swing-offbeat-accent 1 :trackname "bass")
         ))
@@ -584,7 +584,7 @@
         (swing-beat-delay-tempo-prop-solo 1.24 :trackname "melody")
         (swing-beat-delay-tempo-prop-bass 0.73 :trackname "bass")
         (swing-offbeat-delay-one-track-ms 13 :trackname "melody")
-        (scale-sound-level-range 1.5)
+        (scale-sound-level-range 1)
         (swing-offbeat-accent -2 :trackname "drums")
         (swing-offbeat-accent 0 :trackname "bass")
         ))
@@ -601,7 +601,7 @@
         (swing-beat-delay-tempo-prop-solo 1.71 :trackname "melody")
         (swing-beat-delay-tempo-prop-bass 2.3 :trackname "bass")
         (swing-offbeat-delay-one-track-ms 11 :trackname "melody")
-        (scale-sound-level-range 1.5)
+        (scale-sound-level-range 1)
         (swing-offbeat-accent -2 :trackname "drums")
         (swing-offbeat-accent 1 :trackname "bass")
         ))
@@ -613,7 +613,7 @@
         (swing-beat-delay-tempo-prop-bass 0.51 :trackname "bass")
         (swing-offbeat-delay-one-track-ms 50 :trackname "melody")
         (Swing-simple-delay-one-track-ms -20 :trackname "hihat")
-        (scale-sound-level-range 1.5 )
+        (scale-sound-level-range 1)
         (swing-offbeat-accent 1 :trackname "drums")
         (swing-offbeat-accent 1 :trackname "bass")
         ))
@@ -624,7 +624,7 @@
         (swing-beat-delay-tempo-prop-bass 1 :trackname "bass")
         (Swing-offbeat-delay-one-track-ms 7 :trackname "melody")
         (swing-simple-delay-one-track-ms -20 :trackname "hihat")
-        (scale-sound-level-range 1.5 )
+        (scale-sound-level-range 1)
         (swing-offbeat-accent 1 :trackname "drums")
         (swing-offbeat-accent 1 :trackname "bass")
         ))
@@ -635,7 +635,7 @@
         (swing-beat-delay-tempo-prop-bass 1 :trackname "bass")
         (swing-offbeat-delay-one-track-ms 0 :trackname "melody")
         (Swing-simple-delay-one-track-ms -20 :trackname "hihat")
-        (scale-sound-level-range 1.5 )
+        (scale-sound-level-range 1)
         (swing-offbeat-accent 1 :trackname "drums")
         (swing-offbeat-accent 1 :trackname "bass")
         ))

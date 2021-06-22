@@ -10,8 +10,6 @@
 
 (in-package :dm)
 
-
-
 ;  rule-apply-list
 ;  rule-apply-list-barsync
 ;  rule-apply-list-melsync
@@ -23,11 +21,7 @@
 ;  apply-all
 ;  apply-all-melsync))
 
-
-
 ;(defun foo () (rule-apply-list-melsync (get-dm-var 'all-rules1*2)))
-
-
 
 ;; -------------------
 ;;   RULE-APPLY-LIST

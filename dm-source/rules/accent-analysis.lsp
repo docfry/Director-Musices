@@ -1,13 +1,12 @@
-;; Bisesi/Parncutt accent rules - Analysis of accent positions
+;; Bisesi/Parncutt immanent accent rules - Analysis of accent positions
 
 ;;130108/af started on metrical accent
 ;;170131/af added compensation for disklavier (bottom of file)
 ;;170725/af added more meters, no change to previous def of metric accent rule
-
+;;210316/af checked the correspondence to the papers and clarified the comments
+;;          metrical and melodic accent used in Bisesi-Friberg-Parncutt-2019
 
 (in-package :dm)
-
-
 
 #|
 (defun mark-metrical-accent ()
@@ -34,7 +33,11 @@
 |#
 
 
+;-----------------------------------------------------------------------
 ;-------------- metrical accent ----------------------------------------
+;-----------------------------------------------------------------------
+
+; immanent metrical accent model in Bisesi-Friberg-Parncutt-2019
 
 #|
 ;a short version setting accent-m directly
@@ -55,7 +58,7 @@
     )))
 |#
 
-;main function
+; main function used for immanent metrical accent model in Bisesi-Friberg-Parncutt-2019
 ; 4 different beat levels are defined
 (defun mark-metrical-accent ()
   (rem-all :beat0)(rem-all :beat1)(rem-all :beat2)(rem-all :beat3)
@@ -91,11 +94,23 @@
       )))
   )
 
+;testing simple accents for Andreas 210303
+#|
+(defun test-accents (k)
+  (each-note-if
+    (this :beat1)
+    (not (this 'rest))
+    (then
+      (add-this 'sl (* k 2))
+      )))
+|#
+
 ;mark 4 different metrical levels from notated meter
 ;beat0 sub-beat 
 ;beat1 the normal beat
 ;beat2 half bar or bar
 ;beat3 bar or 2 bars
+;used in Friberg-Bisesi-Addessi-Baroni-2019 (see optimize-mel-accent-model-3.lsp)
 (defun mark-beat-levels ()
   (let (beat0 beat1 beat2 beat3
               (ack-value 0.0) fractions)
@@ -119,6 +134,7 @@
       ))))
 
 ;list of translations from meter to beat level fractions
+;used in Bisesi-Friberg-Parncutt-2019
 (defun get-beat-fractions (meter)
   (let ((beat0 1/8) (beat1 1/4)(beat2 2/4)(beat3 4/4)) ;default 4/4
         (cond
@@ -139,6 +155,8 @@
 ;170725 added meters for the 60 mel dataset, the old ones above unchanged
 ;compound meters are not fully defined since it requires a (manual) analysis of the score
 ;no contradictory cases found so far...
+;Should be compatible with Bisesi-Friberg-Parncutt-2019
+;used in Friberg-Bisesi-Addessi-Baroni-2019
 (defun get-beat-fractions (meter)
   (let ((beat0 1/8) (beat1 1/4)(beat2 2/4)(beat3 4/4)) ;default 4/4
         (cond
@@ -225,7 +243,10 @@
     ))
 
 
-;------------- melodic accent old model -----------------------------
+;-----------------------------------------------------------------------
+;------------- melodic accent old model --------------------------------
+;-----------------------------------------------------------------------
+
 
 ;main function
 ;***** replaced by a new model below ****
@@ -356,6 +377,12 @@
       ))))
 
 
+;-----------------------------------------------------------------------
+;--------------------------new melodic accent---------------------------
+;-----------------------------------------------------------------------
+
+; immanent melodic accent model in Bisesi-Friberg-Parncutt-2019
+
 
 ;;--- new melodic accent from Richard mail 130513------
 
@@ -400,7 +427,7 @@
        (let ((salience (round (/ (this :melsal3) 15.0))))
          (if (> salience 0) (set-this 'accent-c salience)) )
        )))))
-|#
+
 
 (defun mark-melodic-accent ()
   (rem-all 'accent-c)
@@ -480,8 +507,10 @@
   (mark-melodic-accent-retain-max-of-three)
   )
 
+  |#
 
 ;with removal of stepwise motion
+; final version for Bisesi-Friberg-Parncutt-2019
 (defun mark-melodic-accent ()
   (rem-all 'accent-c)
   (rem-all :melsal1)
@@ -646,7 +675,15 @@
 
 
 
-;------------- harmonic accent -----------------------------
+;-----------------------------------------------------------------------
+;------------- immanent harmonic accent --------------------------------
+;-----------------------------------------------------------------------
+
+; early version that uses the harmonic-charge rule
+; harmonic analysis must be added manually to the score
+; check where it was used erica?
+; NOT used in Bisesi-Friberg-Parncutt-2019
+
 
 (defun mark-harmonic-accent ()
   (if (or (not (get-first 'q)) (not (get-first 'key))) 
@@ -665,7 +702,9 @@
        (if (> sal 0) (set-this 'accent-h sal))
        ))))
   
-;-------------- batch processing for testing --------------
+;-----------------------------------------------------------------------
+;-------------- batch processing for testing ---------------------------
+;-----------------------------------------------------------------------
 
 (setq *batch-rules*
       '((mark-metrical-accent)
@@ -697,9 +736,13 @@
             (save-performance-midifile1-fpath (merge-pathnames (make-pathname :type "mid") fpath))
             ))))))
 
-;-------------- calibration for Disklavier --------------
+;-----------------------------------------------------------------------
+;-------------- calibration for Disklavier -----------------------------
+;-----------------------------------------------------------------------
 ;;hand-adjusted compensations for differences across the keyboard as estimated by Erica
-;;170131
+;;added 170131
+;; Possibly dependent on piano and mic position
+;; used for the recording of melodies in Friberg-Bisesi-Addessi-Baroni-2019
 
 (defun disklavier-compensation (k)
   (each-note-if

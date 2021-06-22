@@ -28,7 +28,7 @@
 ;; each rules expect a (for now) manual annotation of an accent mark (accent-c, accent-h, accent-m)
 ;; together with a salience number (from 1-5)
 ;; quant  the general quantity of the rule, default 1
-;; curve  :linear :linear :quadratic :cubic :exponential :cosine :gaussian :hand-gesture
+;; curve  :linear :quadratic :cubic :exponential :cosine :gaussian :hand-gesture
 ;; amp    scaling parameter for sound level, default 1 (no scaling)
 ;; dur    scaling parameter for duration (IOI), default 1 (no scaling)
 ;; width  scaling parameter for width, default 1 (no scaling)
