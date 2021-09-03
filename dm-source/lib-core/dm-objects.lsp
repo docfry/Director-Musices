@@ -198,7 +198,7 @@
                             :initform '(dc dr dro f0 ndr pedal-perf sl va vf) )
       (midifile-input-articulation-threshold :initarg :midifile-input-articulation-threshold
                                              :accessor midifile-input-articulation-threshold
-        :initform 0.4)
+        :initform 0.1) ;changed to 0.1 210903 it is better for Musescore input. Higher values for cleaning a performance, eg 0.4
       (midifile-input-notevalues 
        :initarg :midifile-input-notevalues :accessor midifile-input-notevalues
        :initform (sort (list   ; all notevalues and triplets between 1 and 1/16

@@ -481,9 +481,10 @@
 ; It overwrites previous files with the same name so be careful
 ; used for the music examples in the paper appendix
 ; 210622 changed the scale-sound-level-range 1.5 to 1
+; 210713 applied the second list of examples according to swing manuscript for escom
 
-
-(defun swing-generate-midifiles-all ()
+#|
+(defun swing-generate-midifiles-example-1-4 ()
   (let ((fpath (show-dialog-for-selecting-directory "Choose output directory" )))
     (if fpath
         (let ((gm nil))  ; a flag for transposing cymbal according to general midi used by Torbjorn in Logic
@@ -532,6 +533,117 @@
           (swing-save-midi-fname fpath "4d-kirkland-default.mid")
           )))))
 
+(defun swing-generate-midifiles-example-5 ()
+  (let ((fpath (show-dialog-for-selecting-directory "Choose output directory" )))
+    (if fpath
+        (let ((gm nil))  ; a flag for transposing cymbal according to general midi used by Torbjorn in Logic
+        (progn
+
+          (load-score-fpath (merge-pathnames (make-pathname :name "Jarrett_3.mus") fpath))
+          (when gm (swing-set-ride-note-to-gm)(swing-transpose-bass-to-gm))
+          (rule-apply-list *swing-jarrett-model-5a*)
+          (swing-save-midi-fname fpath "5a-jarrett-nominal.mid")
+          (reset-music)
+          (rule-apply-list *swing-jarrett-model-5b*)
+          (swing-save-midi-fname fpath "5b-jarrett-sr-drums.mid")
+          (reset-music)
+          (rule-apply-list *swing-jarrett-model-5c*)
+          (swing-save-midi-fname fpath "5c-jarrett-solo-beat-delay.mid")
+          (reset-music)
+          (rule-apply-list *swing-jarrett-model-5d*)
+          (swing-save-midi-fname fpath "5d-jarrett-solo-offbeat-delay.mid")
+          (reset-music)
+          (rule-apply-list *swing-jarrett-model-5f*)
+          (swing-save-midi-fname fpath "5f-jarrett-bass-beat-delay.mid")
+          (reset-music)
+          (rule-apply-list *swing-jarrett-model-5h*)
+          (swing-save-midi-fname fpath "5h-jarrett-noise.mid")
+          (reset-music)
+          )))))
+|#
+
+(defun swing-generate-midifiles-example-1-4-escom-version ()
+  (let ((fpath (show-dialog-for-selecting-directory "Choose output directory" )))
+    (if fpath
+        (let ((gm nil))  ; a flag for transposing cymbal according to general midi used by Torbjorn in Logic
+        (progn
+          ;Rich
+          (load-score-fpath (merge-pathnames (make-pathname :name "Rich_3.mus") fpath))
+          (when gm (swing-set-ride-note-to-gm)(swing-transpose-bass-to-gm))
+          (swing-save-midi-fname fpath "1b-rich-nominal.mid")
+          (reset-music)
+          (rule-apply-list *swing-rich-model*)
+          (swing-save-midi-fname fpath "1c-rich-model.mid")
+           (reset-music)
+          (rule-apply-list *swing-default*)
+          (swing-save-midi-fname fpath "1d-rich-default.mid")
+          ;Jarrett
+          (load-score-fpath (merge-pathnames (make-pathname :name "Jarrett_3.mus") fpath))
+          (when gm (swing-set-ride-note-to-gm)(swing-transpose-bass-to-gm))
+          (swing-save-midi-fname fpath "2b-jarrett-nominal.mid")
+          (reset-music)
+          (rule-apply-list *swing-jarrett-model*)
+          (swing-save-midi-fname fpath "2c-jarrett-model.mid")
+          (reset-music)
+          (rule-apply-list *swing-default*)
+          (swing-save-midi-fname fpath "2d-jarrett-default.mid")
+          ;marsalis
+          (load-score-fpath (merge-pathnames (make-pathname :name "Marsalis_3.mus") fpath))
+          (when gm (swing-set-ride-note-to-gm)(swing-transpose-bass-to-gm))
+          (swing-save-midi-fname fpath "3b-marsalis-nominal.mid")
+          (reset-music)
+          (rule-apply-list *swing-marsalis-model*)
+          (swing-save-midi-fname fpath "3c-marsalis-model.mid")
+           (reset-music)
+          (rule-apply-list *swing-default*)
+          (swing-save-midi-fname fpath "3d-marsalis-default.mid")
+          ;Erskine
+          (load-score-fpath (merge-pathnames (make-pathname :name "Kirkland_9.mus") fpath))
+          (when gm (swing-set-ride-note-to-gm)(swing-transpose-bass-to-gm))
+          (swing-save-midi-fname fpath "4b-erskine-nominal.mid")
+          (reset-music)
+          (rule-apply-list *swing-erskine-model*)
+          (swing-save-midi-fname fpath "4c-erskine-model.mid")
+          (reset-music)
+          (rule-apply-list *swing-erskine-default*)
+          (swing-save-midi-fname fpath "4d-erskine-default.mid")
+          )))))
+
+(defun swing-generate-midifiles-example-5-6-escom-version ()
+  (let ((fpath (show-dialog-for-selecting-directory "Choose output directory" )))
+    (if fpath
+        (let ((gm nil))  ; a flag for transposing cymbal according to general midi used by Torbjorn in Logic
+        (progn
+          (load-score-fpath (merge-pathnames (make-pathname :name "Jarrett_3.mus") fpath))
+          (when gm (swing-set-ride-note-to-gm)(swing-transpose-bass-to-gm))
+          (rule-apply-list *swing-jarrett-model-5a*)
+          (swing-save-midi-fname fpath "5a-jarrett-nominal.mid")
+          (reset-music)
+          (rule-apply-list *swing-jarrett-model-5b*)
+          (swing-save-midi-fname fpath "5b-jarrett-sr-drums.mid")
+          (reset-music)
+          (rule-apply-list *swing-jarrett-model-5c*)
+          (swing-save-midi-fname fpath "5c-jarrett-solo-beat-delay.mid")
+          (reset-music)
+          (rule-apply-list *swing-jarrett-model-5d*)
+          (swing-save-midi-fname fpath "5d-jarrett-solo-offbeat-delay.mid")
+          (reset-music)
+          (rule-apply-list *swing-jarrett-model-5e*)
+          (swing-save-midi-fname fpath "5e-jarrett-bass-beat-delay.mid")
+          (reset-music)
+          (rule-apply-list *swing-jarrett-model-5f*)
+          (swing-save-midi-fname fpath "5f-jarrett-noise.mid")
+          ;example 6
+          (reset-music)
+          (rule-apply-list *swing-jarrett-model*)
+          (swing-save-midi-fname fpath "6a-jarrett-jarrett-model.mid")
+          (reset-music)
+          (rule-apply-list *swing-rich-model*)
+          (swing-save-midi-fname fpath "6b-jarrett-rich-model.mid")
+          (reset-music)
+          (rule-apply-list *swing-erskine-model*)
+          (swing-save-midi-fname fpath "6c-jarrett-erskine-model.mid")
+          )))))
 
 ;just a help function
 (defun swing-save-midi-fname (fpath fname)
@@ -589,12 +701,14 @@
         (swing-offbeat-accent 0 :trackname "bass")
         ))
 
+;not used in escom version
 (setq *swing-marsalis-nominal*
       '(
-        (scale-sound-level-range 1.5)
+        (scale-sound-level-range 1)
         (swing-offbeat-accent -2 :trackname "drums")
         (swing-offbeat-accent 1 :trackname "bass")
         ))
+
 (setq *swing-marsalis-model*
       '(
         (Swing-ratio-tempo-prop-all 0.6 )
@@ -606,7 +720,7 @@
         (swing-offbeat-accent 1 :trackname "bass")
         ))
 
-(setq *swing-kirkland-model*
+(setq *swing-erskine-model*
       '(
         (Swing-ratio-tempo-prop-all 0.99 )
         (swing-beat-delay-tempo-prop-solo 1.45 :trackname "melody")
@@ -617,7 +731,9 @@
         (swing-offbeat-accent 1 :trackname "drums")
         (swing-offbeat-accent 1 :trackname "bass")
         ))
-(setq *swing-kirkland-rich*
+
+;not used in escom version
+(setq *swing-erskine-rich*
       '(
         (Swing-ratio-tempo-prop-all 1.058 )
         (swing-beat-delay-tempo-prop-solo 1.077 :trackname "melody")
@@ -628,7 +744,8 @@
         (swing-offbeat-accent 1 :trackname "drums")
         (swing-offbeat-accent 1 :trackname "bass")
         ))
-(setq *swing-kirkland-default*
+
+(setq *swing-erskine-default*
       '(
         (Swing-ratio-tempo-prop-all 1 )
         (swing-beat-delay-tempo-prop-solo 1 :trackname "melody")
@@ -638,6 +755,72 @@
         (scale-sound-level-range 1)
         (swing-offbeat-accent 1 :trackname "drums")
         (swing-offbeat-accent 1 :trackname "bass")
+        ))
+
+; example 5 in paper
+; changed to escom version - Just changed the index letter
+(setq *swing-jarrett-model-5a*
+      '(
+        ;(Swing-ratio-tempo-prop-all 1.024 )
+        ;(swing-beat-delay-tempo-prop-solo 1.24 :trackname "melody")
+        ;(swing-beat-delay-tempo-prop-bass 0.73 :trackname "bass")
+        ;(swing-offbeat-delay-one-track-ms 13 :trackname "melody")
+        (scale-sound-level-range 1)
+        (swing-offbeat-accent -2 :trackname "drums")
+        (swing-offbeat-accent 0 :trackname "bass")
+        ))
+(setq *swing-jarrett-model-5b*
+      '(
+        (Swing-ratio-tempo-prop-all 1.024 )
+        ;(swing-beat-delay-tempo-prop-solo 1.24 :trackname "melody")
+        ;(swing-beat-delay-tempo-prop-bass 0.73 :trackname "bass")
+        ;(swing-offbeat-delay-one-track-ms 13 :trackname "melody")
+        (scale-sound-level-range 1)
+        (swing-offbeat-accent -2 :trackname "drums")
+        (swing-offbeat-accent 0 :trackname "bass")
+        ))
+(setq *swing-jarrett-model-5c*
+      '(
+        (Swing-ratio-tempo-prop-all 1.024 )
+        (swing-beat-delay-tempo-prop-solo 1.24 :trackname "melody")
+        ;(swing-beat-delay-tempo-prop-bass 0.73 :trackname "bass")
+        ;(swing-offbeat-delay-one-track-ms 13 :trackname "melody")
+        (scale-sound-level-range 1)
+        (swing-offbeat-accent -2 :trackname "drums")
+        (swing-offbeat-accent 0 :trackname "bass")
+        ))
+(setq *swing-jarrett-model-5d*
+      '(
+        (Swing-ratio-tempo-prop-all 1.024 )
+        (swing-beat-delay-tempo-prop-solo 1.24 :trackname "melody")
+        ;(swing-beat-delay-tempo-prop-bass 0.73 :trackname "bass")
+        (swing-offbeat-delay-one-track-ms 13 :trackname "melody")
+        (scale-sound-level-range 1)
+        (swing-offbeat-accent -2 :trackname "drums")
+        (swing-offbeat-accent 0 :trackname "bass")
+        ))
+(setq *swing-jarrett-model-5e*
+      '(
+        (Swing-ratio-tempo-prop-all 1.024 )
+        (swing-beat-delay-tempo-prop-solo 1.24 :trackname "melody")
+        (swing-beat-delay-tempo-prop-bass 0.73 :trackname "bass")
+        (swing-offbeat-delay-one-track-ms 13 :trackname "melody")
+        (scale-sound-level-range 1)
+        (swing-offbeat-accent -2 :trackname "drums")
+        (swing-offbeat-accent 0 :trackname "bass")
+        ))
+(setq *swing-jarrett-model-5f*
+      '(
+        (internal-clock-noise-sync 1.0 )
+        (Swing-ratio-tempo-prop-all 1.024 )
+        (swing-beat-delay-tempo-prop-solo 1.24 :trackname "melody")
+        (swing-beat-delay-tempo-prop-bass 0.73 :trackname "bass")
+        (swing-offbeat-delay-one-track-ms 13 :trackname "melody")
+        (scale-sound-level-range 1)
+        (swing-offbeat-accent -2 :trackname "drums")
+        (swing-offbeat-accent 0 :trackname "bass")
+        (motor-noise 1 )
+        (motor-noise-amp 1 )
         ))
 
 
