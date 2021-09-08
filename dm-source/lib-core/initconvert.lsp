@@ -163,6 +163,7 @@
 ;;
 (defun init-music-mf ()
   (each-note
+    ;(print-ll "note " (this 'n) " sl " (this 'sl))
     (cond ((this 'rest))     ;rest
           (t (set-this 'sl 0) ;else
              (set-this 'n (cons (f0-to-toneoctave (this 'f0))
