@@ -473,6 +473,87 @@
       (setq meter (read)))
     meter ))
   
+;;
+;; --------------------------
+;;   merge-all-ties-and-rests
+;; --------------------------
+;;
+
+;; merge all tied notes and rests into one
+;; note that only dr and ndr is updated
+;; seems to be the easiest strategy for correct rule application and matching etc.
+
+;main 
+(defun merge-all-ties-and-rests ()
+  (merge-all-ties)
+  (merge-all-rests)
+  (remove-all-marked-notes)
+  (rem-all 'tie) )
+
+(defun merge-all-ties ()
+  (each-note-if
+    (this 'tie)
+    (or (first?) (not (prev 'tie)))
+    (then
+      (set-this :merged t)
+      (rem-this 'tie)
+      (let ((iend (i?last-tied-note *i*)))
+        (print-ll "merge-all-ties: note index " *i* " last note index " iend " note " (this 'n))
+        (loop for i from (1+ *i*) to iend do
+             (add-this 'ndr (iget i 'ndr))
+             (add-this 'dr (iget i 'dr))
+             (iset i :remove t)
+             )))))
+             
+(defun merge-all-rests ()
+  (each-note-if ; only for the first rest in a series
+    (this 'rest)
+    (or (first?) (not (prev 'rest)))
+    (then
+      (let ((iend (i?last-rest *i*)))
+        (print-ll "merge-all-rests: note index " *i* " last note index " iend " note " (this 'n))
+        (when (> iend *i*)
+          (set-this :merged t)
+          (loop for i from (1+ *i*) to iend do
+                (add-this 'ndr (iget i 'ndr))
+                (add-this 'dr (iget i 'dr))
+                (iset i :remove t)
+                ))))))
+             
+;      (set-this-dr (+ (this-dr) (next-dr)))
+ ;     (set-this 'n (list (car (this 'n)) (+ (second (this 'n)) (second (this 'n)))))
+;      )))
+
+(defun remove-all-marked-notes ()
+  (each-note-if
+    (this :remove)
+    (then
+      (remove-this-segment)
+      )))
+
+;get index of last tied note
+;only works when starting from the first tied note
+;access function - to be called within a rulemacro
+(defun i?last-tied-note (i)
+  (untilexit end
+    (incf i)
+    (cond ((>= i (1- (length *v*)))
+           (return-from end i))
+          ((not (iget i 'tie))
+           (return-from end i)
+           ))))
+
+;get index of last rest
+;access function - to be called within a rulemacro
+(defun i?last-rest (i)
+  (untilexit end
+    (incf i)
+    (cond ((> i (1- (length *v*)))
+           (return-from end (1- i)))
+          ((not (iget i 'rest))
+           (return-from end (1- i))
+           ))))
+
  
 ;; ------------------------------------------------------------------
 ;; -----   C O N V E R S I O N S     --------------------------------
