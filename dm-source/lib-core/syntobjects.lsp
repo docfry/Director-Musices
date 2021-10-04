@@ -40,6 +40,7 @@
         ("Technics-SX-P30" . synt-Technics-SX-P30)
         ("Yamaha-Clavinova-CLP370" . synt-Yamaha-Clavinova-CLP370)
         ("Yamaha-Disklavier-E3" . synt-Yamaha-Disklavier-e3)
+        ("Yamaha-Disklavier-up" . synt-Yamaha-Disklavier-up)
         ;("Yamaha-Disklavier-2" . synt-Yamaha-Disklavier-2)
         ("Yamaha-P90" . synt-Yamaha-P90)       
         ("Proteus" . synt-Proteus)
@@ -67,6 +68,7 @@
         "Technics-SX-P30"
         "Yamaha-Clavinova-CLP370"
         "Yamaha-Disklavier-E3"
+        "Yamaha-Disklavier-up"
         ;"Yamaha-Disklavier-2"
         "Yamaha-P90"
         "Proteus"
@@ -700,20 +702,6 @@
         ))
 |#
 
-;the inverse of sl-to-vel function below
-;better a method for each synth
-(defun vel-to-sl-sblive (vel)
-  (nth vel
-       '(nil 
-         -36.55 -35.95 -35.3 -34.65 -34.05 -33.4 -32.75 -32.1 -31.45 -30.8 -30.15 -29.5 -28.85 -28.15 -27.5 
-         -26.8 -26.15 -25.45 -24.75 -24.1 -23.4 -22.7 -22.0 -21.3 -20.6 -19.95 -19.25 -18.55 -17.9 -17.2 -16.55 
-         -15.9 -15.25 -14.65 -14.0 -13.4 -12.8 -12.2 -11.65 -11.05 -10.5 -10.0 -9.45 -8.95 -8.45 -7.95 -7.45 -7.0 
-         -6.55 -6.1 -5.65 -5.25 -4.85 -4.4 -4.05 -3.65 -3.25 -2.9 -2.55 -2.2 -1.85 -1.5 -1.15 -0.85 -0.5 -0.2 0.15 
-         0.45 0.75 1.05 1.3 1.6 1.9 2.15 2.4 2.7 2.95 3.2 3.45 3.7 3.95 4.2 4.4 4.65 4.8 5.1 5.25 5.55 5.75 5.9 6.2 
-         6.4 6.6 6.8 7.0 7.2 7.4 7.6 7.7 7.95 8.15 8.35 8.45 8.7 8.8 9.05 9.15 9.4 9.5 9.75 9.9 10.0 10.25 10.4 10.55 
-         10.65 10.8 11.05 11.2 11.35 11.5 11.65 11.8 11.95 12.1 12.15 12.3)
-       ))
-
 (defmethod sl-to-vel ((synt synt-SBlive) sl)
     (round (+ (* 0.00002 (expt sl 4))
               (* 0.0024 (expt sl 3)) 
@@ -730,6 +718,34 @@
           (return (- sl 0.1)) )
       (incf sl 0.1)
       )))
+
+;the inverse of sl-to-vel function below
+;better a method for each synth
+#|
+(defun vel-to-sl-sblive (vel)
+  (nth vel
+       '(nil 
+         -36.55 -35.95 -35.3 -34.65 -34.05 -33.4 -32.75 -32.1 -31.45 -30.8 -30.15 -29.5 -28.85 -28.15 -27.5 
+         -26.8 -26.15 -25.45 -24.75 -24.1 -23.4 -22.7 -22.0 -21.3 -20.6 -19.95 -19.25 -18.55 -17.9 -17.2 -16.55 
+         -15.9 -15.25 -14.65 -14.0 -13.4 -12.8 -12.2 -11.65 -11.05 -10.5 -10.0 -9.45 -8.95 -8.45 -7.95 -7.45 -7.0 
+         -6.55 -6.1 -5.65 -5.25 -4.85 -4.4 -4.05 -3.65 -3.25 -2.9 -2.55 -2.2 -1.85 -1.5 -1.15 -0.85 -0.5 -0.2 0.15 
+         0.45 0.75 1.05 1.3 1.6 1.9 2.15 2.4 2.7 2.95 3.2 3.45 3.7 3.95 4.2 4.4 4.65 4.8 5.1 5.25 5.55 5.75 5.9 6.2 
+         6.4 6.6 6.8 7.0 7.2 7.4 7.6 7.7 7.95 8.15 8.35 8.45 8.7 8.8 9.05 9.15 9.4 9.5 9.75 9.9 10.0 10.25 10.4 10.55 
+         10.65 10.8 11.05 11.2 11.35 11.5 11.65 11.8 11.95 12.1 12.15 12.3)
+       ))
+|#
+
+(defmethod vel-to-sl ((synt synt-SBlive) vel)
+    (nth vel
+       '(nil 
+         -36.55 -35.95 -35.3 -34.65 -34.05 -33.4 -32.75 -32.1 -31.45 -30.8 -30.15 -29.5 -28.85 -28.15 -27.5 
+         -26.8 -26.15 -25.45 -24.75 -24.1 -23.4 -22.7 -22.0 -21.3 -20.6 -19.95 -19.25 -18.55 -17.9 -17.2 -16.55 
+         -15.9 -15.25 -14.65 -14.0 -13.4 -12.8 -12.2 -11.65 -11.05 -10.5 -10.0 -9.45 -8.95 -8.45 -7.95 -7.45 -7.0 
+         -6.55 -6.1 -5.65 -5.25 -4.85 -4.4 -4.05 -3.65 -3.25 -2.9 -2.55 -2.2 -1.85 -1.5 -1.15 -0.85 -0.5 -0.2 0.15 
+         0.45 0.75 1.05 1.3 1.6 1.9 2.15 2.4 2.7 2.95 3.2 3.45 3.7 3.95 4.2 4.4 4.65 4.8 5.1 5.25 5.55 5.75 5.9 6.2 
+         6.4 6.6 6.8 7.0 7.2 7.4 7.6 7.7 7.95 8.15 8.35 8.45 8.7 8.8 9.05 9.15 9.4 9.5 9.75 9.9 10.0 10.25 10.4 10.55 
+         10.65 10.8 11.05 11.2 11.35 11.5 11.65 11.8 11.95 12.1 12.15 12.3)
+       ))
     
 #| for testing
 (defmethod set-vol ((synt synt-SBlive) vol time)
@@ -1435,8 +1451,73 @@
              84)))
  |#
 
+;----------- Yamaha Disklavier E3 -----------------------------------------------------
 
-;----------- Yamaha Disklavier II (Bresin, Goebl) -----------------------------------------------------
+(defclass synt-yamaha-disklavier-e3 (synt) ())
+
+(defun synt-yamaha-disklavier-e3 () 
+   (make-instance 'synt-yamaha-disklavier-e3 :program-list *program-list-general-midi*))
+
+(defmethod print-object ((self synt-yamaha-disklavier-e3) stream)
+  (format stream "(synt-disklavier-e3)") )
+
+;;y = -0.0023x3 + 0.051x2 + 3.8256x + 65.102
+(defmethod sl-to-vel ((synt synt-yamaha-disklavier-e3) sl)
+  (round (+ (* -0.0023 (expt sl 3))
+            (* 0.051 (expt sl 2)) 
+            (* 3.8256 sl) 
+            64.0) ))
+
+;; y = 3.631x + 83.064
+(defmethod set-vol ((synt synt-yamaha-disklavier-e3) vol time)
+   (setq vol (round  (+  (* 3.631 vol) 
+                         84)))
+   (midi-write-list 
+     (list (logior #xB0 (1- (channel synt)))
+       7                     
+       (cond
+           ((< vol 0) (warn "synt-yamaha-disklavier-e3 Underflow in volume") 0)
+           ((> vol 127) (warn "synt-yamaha-disklavier-e3 Overflow in volume") 127)
+           (t vol) ))
+     time ))
+
+#| for testing
+(defun foo (sl)
+  (round (+ (* -0.0023 (expt sl 3))
+            (* 0.051 (expt sl 2)) 
+            (* 3.8256 sl) 
+            64.0) ) )
+
+(defun foo (vol) 
+  (round  (+  (* 3.631 vol) 
+             84)))
+ |#
+
+;----------- Yamaha Disklavier upright (Gabriel Jones, Leeds) -----------------------------------------------------
+;211004 added
+
+(defclass synt-yamaha-disklavier-up (synt) ())
+
+(defun synt-yamaha-disklavier-up () 
+   (make-instance 'synt-yamaha-disklavier-up :program-list *program-list-general-midi*))
+
+(defmethod print-object ((self synt-yamaha-disklavier-up) stream)
+  (format stream "(synt-yamaha-disklavier-up)") )
+
+;;y=3.4084x + 64
+(defmethod sl-to-vel ((synt synt-yamaha-disklavier-up) sl)
+  (round (+ (* 3.4084 sl) 
+            64) ))
+
+;;y=0.2918x - 18.541
+(defmethod vel-to-sl ((synt synt-yamaha-disklavier-up) vel)
+  (round (+ (* 0.2918 vel)
+            -18.54) ))
+
+;; volume not implemented/measured, should be set at 100
+
+
+;----------- Yamaha Disklavier II  -----------------------------------------------------
 ;; Measured from Disklavier II in Uppsalla
 ;; Goebl, W., & Bresin, R. (2003). Measurement and reproduction accuracy of computer-controlled grand pianos.
 ;; Journal of the Acoustical Society of America, 114(4), 2273-2283.

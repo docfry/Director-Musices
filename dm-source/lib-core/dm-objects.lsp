@@ -229,6 +229,8 @@
       (midifile-note-subdiv-levels 
        :initarg :midifile-note-subdiv-levels :accessor midifile-note-subdiv-levels
        :initform 2)
+     (midifile-input-synth-name-default :initarg :midifile-input-synth-name-default
+         :accessor midifile-input-synth-name-default :initform "Yamaha-Disklavier-up" )   ;current syntname (before "SBlive")
       ))
 
 ;; ==========================
