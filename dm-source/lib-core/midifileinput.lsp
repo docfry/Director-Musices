@@ -843,7 +843,7 @@
        (set-this 'f0 (note-number *this-segment*))
        (set-this 'nsl (vel-to-sl input-synt (velocity *this-segment*))) ;from velocity to dB according default input synth
        (set-this 'sl (this 'nsl))
-       ;(print-ll "noteon f0=" (note-number *this-segment*) " velocity=" (velocity *this-segment*))
+       ;(print-ll "noteon f0=" (note-number *this-segment*) " velocity=" (velocity *this-segment*) " SL=" (vel-to-sl input-synt (velocity *this-segment*)))
       ;(set-this 'dr (this 'ndr))
        ))))
 

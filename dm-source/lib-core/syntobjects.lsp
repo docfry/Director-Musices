@@ -1494,7 +1494,7 @@
  |#
 
 ;----------- Yamaha Disklavier upright (Gabriel Jones, Leeds) -----------------------------------------------------
-;211004 added
+;211004 added, all measurements for volume 100 (same as midifile from device)
 
 (defclass synt-yamaha-disklavier-up (synt) ())
 
@@ -1511,8 +1511,14 @@
 
 ;;y=0.2918x - 18.541
 (defmethod vel-to-sl ((synt synt-yamaha-disklavier-up) vel)
-  (round (+ (* 0.2918 vel)
-            -18.54) ))
+  (+ (* 0.2918 vel)
+     -18.54 ))
+
+#|
+(defun foo (vel)
+  (+ (* 0.2918 vel)
+     -18.54 ))
+|#
 
 ;; volume not implemented/measured, should be set at 100
 

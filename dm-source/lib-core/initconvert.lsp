@@ -490,6 +490,7 @@
   (remove-all-marked-notes)
   (rem-all 'tie) )
 
+#|
 (defun merge-all-ties ()
   (each-note-if
     (this 'tie)
@@ -504,25 +505,97 @@
              (add-this 'dr (iget i 'dr))
              (iset i :remove t)
              )))))
-             
+
+; add also note values (not working for dots and tuples)
+(defun merge-all-ties ()
+  (each-note-if
+    (this 'tie)
+    (or (first?) (not (prev 'tie)))
+    (then
+      (set-this :merged t)
+      (rem-this 'tie)
+      (let ((iend (i?last-tied-note *i*)))
+        (print-ll "merge-all-ties: note index " *i* " last note index " iend " note " (this 'n))
+        (loop for i from (1+ *i*) to iend do
+             (add-this 'ndr (iget i 'ndr))
+             (add-this 'dr (iget i 'dr))
+             (set-this 'n (list (car (this 'n)) (+ (cadr (this 'n)) (cadr (iget i 'n)))))
+             (iset i :remove t)
+             )))))
+|#
+
+;change to notevalue fractions
+(defun merge-all-ties ()
+  (each-note-if
+    (this 'tie)
+    (or (first?) (not (prev 'tie)))
+    (then
+      (set-this :merged t)
+      (rem-this 'tie)
+      (let ((iend (i?last-tied-note *i*)))
+        (print-ll "merge-all-ties: note index " *i* " last note index " iend " note " (this 'n))
+        (loop for i from (1+ *i*) to iend do
+             (add-this 'ndr (iget i 'ndr))
+             (add-this 'dr (iget i 'dr))
+             (set-this 'n (list (car (this 'n)) (+ (get-note-value-fraction *i*) (get-note-value-fraction i))))
+             (if (this 'dot) (rem-this 'dot))
+             (if (this 't) (rem-this 't))
+             (if (this 'tuple) (rem-this 'tuple))
+             (iset i :remove t)
+             )))))
+            
+#|
 (defun merge-all-rests ()
   (each-note-if ; only for the first rest in a series
     (this 'rest)
     (or (first?) (not (prev 'rest)))
     (then
       (let ((iend (i?last-rest *i*)))
-        (print-ll "merge-all-rests: note index " *i* " last note index " iend " note " (this 'n))
         (when (> iend *i*)
+          (print-ll "merge-all-rests: note index " *i* " last note index " iend " note " (this 'n))
           (set-this :merged t)
           (loop for i from (1+ *i*) to iend do
                 (add-this 'ndr (iget i 'ndr))
                 (add-this 'dr (iget i 'dr))
                 (iset i :remove t)
                 ))))))
+
+(defun merge-all-rests ()
+  (each-note-if ; only for the first rest in a series
+    (this 'rest)
+    (or (first?) (not (prev 'rest)))
+    (then
+      (let ((iend (i?last-rest *i*)))
+        (when (> iend *i*)
+          (print-ll "merge-all-rests: note index " *i* " last note index " iend " note " (this 'n))
+          (set-this :merged t)
+          (loop for i from (1+ *i*) to iend do
+                (add-this 'ndr (iget i 'ndr))
+                (add-this 'dr (iget i 'dr))
+                (set-this 'n (list (car (this 'n)) (+ (cadr (this 'n)) (cadr (iget i 'n)))))
+                (iset i :remove t)
+                ))))))
+|#
+
+(defun merge-all-rests ()
+  (each-note-if ; only for the first rest in a series
+    (this 'rest)
+    (or (first?) (not (prev 'rest)))
+    (then
+      (let ((iend (i?last-rest *i*)))
+        (when (> iend *i*)
+          (print-ll "merge-all-rests: note index " *i* " last note index " iend " note " (this 'n))
+          (set-this :merged t)
+          (loop for i from (1+ *i*) to iend do
+                (add-this 'ndr (iget i 'ndr))
+                (add-this 'dr (iget i 'dr))
+                (set-this 'n (list (car (this 'n)) (+ (get-note-value-fraction *i*) (get-note-value-fraction i))))
+                (if (this 'dot) (rem-this 'dot))
+                (if (this 't) (rem-this 't))
+                (if (this 'tuple) (rem-this 'tuple))
+                (iset i :remove t)
+                ))))))
              
-;      (set-this-dr (+ (this-dr) (next-dr)))
- ;     (set-this 'n (list (car (this 'n)) (+ (second (this 'n)) (second (this 'n)))))
-;      )))
 
 (defun remove-all-marked-notes ()
   (each-note-if
