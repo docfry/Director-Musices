@@ -741,6 +741,26 @@
           (set-this 'sl (- (this 'sl) addval))
           ))))))
 
+;211022 new version excluding tied notes
+(defun normalize-sl ()
+  (each-track
+    (let ((sltot 0.0)
+          (nsltot 0.0)
+          (nr 0) )
+      (each-note                                ;compute sltot
+        (when (and (not (this 'rest)) 
+                   (or (first?) (not (prev 'tie))))
+          (incf sltot (this 'sl))
+          (if (this 'nsl) (incf nsltot (this 'nsl)))
+          (incf nr) ))
+      (let ((addval (- (/ sltot nr)(/ nsltot nr))))
+        (each-note-if
+          (not (this 'rest))
+          (or (first?) (not (prev 'tie)))
+          (then
+            (set-this 'sl (- (this 'sl) addval))
+            ))))))
+
 ;maximize the sl corresponding to velocity 127
 (defun maximize-sl ()
    (each-track
@@ -991,10 +1011,18 @@
       (each-note
        (set-this :onset (/ drsum 1000.0))
        (set-this :offset (/ (+ drsum (if (this 'dro) (- (this 'dr) (this 'dro)) (this 'dr))) 1000.0))
-        (setq drsum (+ drsum (this 'dr)))
+       (setq drsum (+ drsum (this 'dr)))
        ))))
 
-
+;with NDR for onsets and no articulation
+(defun mark-nom-onset-offset-time ()
+  (each-track
+    (let ((drsum 0))
+      (each-note
+       (set-this :nonset (/ drsum 1000.0))
+       (set-this :noffset (/ (+ drsum (this 'ndr)) 1000.0))
+        (setq drsum (+ drsum (this 'ndr)))
+       ))))
 ;--notes per second----
 
 ;;from first sounding note to last not including last

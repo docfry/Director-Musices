@@ -197,6 +197,48 @@
          )
         (list beat0 beat1 beat2 beat3)
         ))
+;211011 Added 7/8 for Gabriel study
+(defun get-beat-fractions (meter)
+  (let ((beat0 1/8) (beat1 1/4)(beat2 2/4)(beat3 4/4)) ;default 4/4
+        (cond
+         ;2 or 4
+         ((equal meter '(4 4)) (setq beat0 1/8 beat1 1/4 beat2 2/4 beat3 4/4))
+         ((equal meter '(2 4)) (setq beat0 1/8 beat1 1/4 beat2 2/4 beat3 4/4))
+         ((equal meter '(8 4)) (setq beat0 1/8 beat1 1/4 beat2 2/4 beat3 4/4))
+         ((equal meter '(8 16)) (setq beat0 1/8 beat1 1/4 beat2 2/4 beat3 4/4))
+         ((equal meter '(2 2)) (setq beat0 1/4 beat1 1/2 beat2 2/2 beat3 4/2))
+         ((equal meter '(4 2)) (setq beat0 1/4 beat1 1/2 beat2 2/2 beat3 4/2))
+         ;3,6,9...
+         ((equal meter '(3 4)) (setq beat0 1/8 beat1 1/4 beat2 3/4 beat3 6/4))
+         ((equal meter '(3 2)) (setq beat0 1/4 beat1 1/2 beat2 3/2 beat3 6/2)); no 36
+         ((equal meter '(6 4)) (setq beat0 1/8 beat1 1/4 beat2 3/4 beat3 6/4))
+         ((equal meter '(3 8)) (setq beat0 1/8 beat1 3/8 beat2 6/8 beat3 12/4))
+         ((equal meter '(6 8)) (setq beat0 1/8 beat1 3/8 beat2 6/8 beat3 12/8))
+         ((equal meter '(6 16)) (setq beat0 3/16 beat1 3/16 beat2 6/16 beat3 12/16)) ; no 55
+         ((equal meter '(9 8)) (setq beat0 1/8 beat1 3/8 beat2 9/8 beat3 18/8))
+         ((equal meter '(9 16)) (setq beat0 3/16 beat1 3/16 beat2 9/16 beat3 18/16)) ;no 53
+         ((equal meter '(12 8))(setq beat0 1/8 beat1 3/8 beat2 6/8 beat3 12/8))
+         ((equal meter '(12 16)) (setq beat0 1/16 beat1 3/16 beat2 6/16 beat3 12/16)) ;no 53
+         ;compound - different compromises
+         ((equal meter '(5 4)) (setq beat0 1/8 beat1 1/4 beat2 5/4 beat3 5/4)) ;beat2 should be either at 2+3 or 3+2
+         ((equal meter '(5 16)) (setq beat0 5/16 beat1 5/16 beat2 10/16 beat3 20/16)) ;no 53
+         ((equal meter '(7 8)) (setq beat0 1/16 beat1 1/8 beat2 4/8 beat3 14/8)) ; no 25 new 30 set Gabriel
+         ((equal meter '(7 16)) (setq beat0 7/16 beat1 7/16 beat2 7/16 beat3 14/16)) ;beat0-1 not defined but set to higher level, no 30
+         ((equal meter '(10 16)) (setq beat0 10/16 beat1 10/16 beat2 10/16 beat3 20/16)) ;beat0-1 not defined but set to higher level, no 55
+         ((equal meter '(11 16)) (setq beat0 11/16 beat1 11/16 beat2 11/16 beat3 22/16)) ;beat0-1 not defined but set to higher level, no 30
+         ((equal meter '(19 16)) (setq beat0 19/16 beat1 19/16 beat2 19/16 beat3 19/16)) ;beat0-2 not defined but set to higher level, no 30
+         ((equal meter '(13 16)) (setq beat0 2/16 beat1 4/16 beat2 13/16 beat3 13/16)) ; no 53
+         ((equal meter '(14 16)) (setq beat0 7/16 beat1 7/16 beat2 7/16 beat3 14/16)) ; no 53
+         ((equal meter '(15 16)) (setq beat0 1/16 beat1 3/16 beat2 15/16 beat3 15/16)) ; no 53
+         ((equal meter '(17 16)) (setq beat0 2/16 beat1 4/16 beat2 17/16 beat3 17/16)) ; no 53
+         ;special
+         ((equal meter '(25 4)) (setq beat0 1/8 beat1 1/4 beat2 2/4 beat3 4/4)) ;no 21, as 4/4, maybe better to not define beat2-3
+         ((equal meter '(34 4)) (setq beat0 1/8 beat1 1/4 beat2 2/4 beat3 4/4)) ;no 24, as 4/4
+
+         (t (warn " get-beat-level-fractions, meter not defined: ~A ,using (4 4) instead" meter))
+         )
+        (list beat0 beat1 beat2 beat3)
+        ))
 
 ;mark the duration in ms of each beat level
 ;only at meter mark
