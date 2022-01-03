@@ -27,7 +27,7 @@
 ;; gives a ratio of about 1.56 (1+0.22)/(1-0.22)
 ;; 200201/af added 50 ms lower limit on dr - should only be 
 ;; applied on beat/2 dr
-;; define a new marker: :swingpoint
+;; define a new marker: :offbeat
 (defun inegales (quant)
   (let ((beat-dr))
     (mark-offbeat)

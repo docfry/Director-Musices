@@ -323,7 +323,7 @@
 (defun get-track-var (varname)
  (eval (list varname (nth *i* *v*)) ))
 
- (defun set-track-var (varname value)
+(defun set-track-var (varname value)
  (eval (list 'setf (list varname (nth *i* *v*)) value)) )
 
 (defun remove-this-track ()

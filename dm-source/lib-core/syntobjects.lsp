@@ -22,14 +22,14 @@
 ;; 121202/af added Yamaha P90
 ;; 130502/af added accent analysis midi output
 ;; 130712/af added disklavier e3
+;; 211025/af added disklavier up, Pianoteq, both input and output
 
 (in-package :dm)
 
 ;;used for translating name to synth object
 (defvar *defined-synths*)
 (setq *defined-synths* 
-      '(("Pinnacle" . synt-pinnacle)
-        ("SBlive" . synt-SBlive)
+      '(("Pianoteq7-NYStein" . synt-Pianoteq7-NYStein)
         ("Roland-A90" . synt-Roland-A90)
         ("Roland-PMA5" . synt-Roland-PMA5)
         ("Roland-1010" . synt-Roland-1010)
@@ -44,6 +44,8 @@
         ;("Yamaha-Disklavier-2" . synt-Yamaha-Disklavier-2)
         ("Yamaha-P90" . synt-Yamaha-P90)       
         ("Proteus" . synt-Proteus)
+        ("Pinnacle" . synt-pinnacle)
+        ("SBlive" . synt-SBlive)
         ;("SampleCell" . synt-SampleCell)
         ;("S3000" . synt-S3000)
         ;("FZ1" . synt-FZ1)
@@ -56,8 +58,7 @@
 ;;used for defining menu items in music dialog
 (defvar *defined-synth-names*)
 (setq *defined-synth-names* 
-      '("Pinnacle"
-        "SBlive"
+      '("Pianoteq7-NYStein"
         "Roland-A90"
         "Roland-PMA5"
         "Roland-1010"
@@ -72,6 +73,8 @@
         ;"Yamaha-Disklavier-2"
         "Yamaha-P90"
         "Proteus"
+        "Pinnacle"
+        "SBlive"
         ;"SampleCell"
         ;"S3000"
         ;"FZ1"
@@ -1452,6 +1455,7 @@
  |#
 
 ;----------- Yamaha Disklavier E3 -----------------------------------------------------
+; should be recorded again with proper volume according to internal mdi file
 
 (defclass synt-yamaha-disklavier-e3 (synt) ())
 
@@ -1550,6 +1554,45 @@
             (* 2.7998 sl) 
             63.836) ) )
  |#
+
+;----------- Pianoteq7-NYStein  -----------------------------------------------------
+;211025/af added
+; Used the default settings for NY Steinway D prelude
+; Straight velocity curve
+; Dynamics = 36 dB
+; midi file: test-vel-26val-vol84
+; velocity = 0.0948x2 + 4.8134x + 64
+; r2 = 0.9995
+; SL = -0.0011x2 + 0.375x - 18.954
+; Lowest value omitted
+
+(defclass synt-pianoteq7-nystein (synt) ())
+
+(defun synt-pianoteq7-nystein () 
+   (make-instance 'synt-pianoteq7-nystein ))
+
+(defmethod print-object ((self synt-pianoteq7-nystein) stream)
+  (format stream "(synt-Pianoteq7-NYStein)") )
+
+(defmethod sl-to-vel ((synt synt-pianoteq7-nystein) sl)
+  (round (+ (* 0.0948 (expt sl 2))
+            (* 4.8134 sl) 
+            64) ))
+
+(defmethod vel-to-sl ((synt synt-pianoteq7-nystein) vel)
+  (+ (* -0.0011 (expt vel 2))
+     (* 0.375 vel)
+     -18.954 ))
+
+#|
+(defun foo (sl)
+  (+ (* 0.0948 (expt sl 2))
+            (* 4.8134 sl) 
+            64))
+|#
+
+;; volume not implemented/measured
+
 
 ;----------- Generator software synthesizer -----------------------------------------------------
 ;

@@ -2,9 +2,9 @@
 ;;Apply a ritard in the end and accelerando in the beginning of each phrase.
 ;;The music must contain boundary marks in the following way:
 ;; On the first note of each phrase:
-;;    boundary-start <boundary level list>
+;;    phrase-start <phrase level list>
 ;; On the last note of each phrase:
-;;    boundary-end <boundary level list>
+;;    phrase-end <phrase level list>
 ;; The level is the hierarchical phrase level.
 ;; 7 is the lowest level, typically small motives 3-5 notes
 ;; 6 is the next level above
