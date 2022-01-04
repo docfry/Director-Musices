@@ -27,7 +27,7 @@
           "Intonation.lsp"
           "FinalRitard.lsp" 
           "utilityrules.lsp" 
-          "Punctuation.lsp"
+          "punctuation.lsp"
           "phrasearch.lsp" 
           "SyncOnMel.lsp"]
   }
