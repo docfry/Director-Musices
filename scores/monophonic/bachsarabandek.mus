@@ -1,0 +1,48 @@
+mono-track
+ :trackname "V1"
+ :midi-channel 1
+ :midi-initial-volume 0
+ :track-delay 0
+ :midi-initial-program 1
+ :synth "SBlive"
+(mel "bachsarabandek" bar 1 n ("G4" . 8) mm 51 meter (3 4) q
+ ("C" "Eb" "G") phrase-start (5 6 7) key "C" modus "min")
+(n ("Eb4" . 8))
+(n ("B3" . 8))
+(n ("C4" . 8) punct-lf t)
+(n ("Ab3" . 4) q ("F" "Ab" "C") phrase-end (6 7) punct-lf t)
+(bar 2 n ("C5" . 8) subph t phrase-start (6 7))
+(n ("Ab4" . 8))
+(n ("E4" . 8))
+(n ("F4" . 8) punct-lf t)
+(n ("B3" . 4) q ("G" "B" "D") phrase-end (6 7) punct-lf t)
+(bar 3 n ("D5" . 8) phrase t phrase-start (6 7))
+(n ("Ab4" . 8))
+(n ("E4" . 8))
+(n ("F4" . 8) punct-lf t)
+(n ("G3" . 8) phrase-end (7))
+(n ("G4" . 8) phrase-start (7))
+(bar 4 n ("F4" . 8) q ("C" "Eb" "G"))
+(n ("Eb4" . 8))
+(n ("B3" . 8))
+(n ("C4" . 8) punct-lf t)
+(n ("C3" . 4) phrase-end (5 6 7) punct-lf t)
+(bar 5 n ("C4" . 8) phrase-start (5 6 7))
+(n ("Eb4" . 8))
+(n ("Ab4" . 8))
+(n ("G4" . 8) punct-lf t)
+(n ("Db5" . 8))
+(n ("C5" . 8) phrase-end (7) punct-lf t)
+(bar 6 n ("D4" . 8) q ("Bb" "D" "F") phrase-start (7))
+(n ("F4" . 8))
+(n ("Bb4" . 8))
+(n ("Ab4" . 8) punct-lf t)
+(n ("C5" . 8))
+(n ("Bb4" . 8) phrase-end (7) punct-lf t)
+(bar 7 n ("Ab4" . 8) q ("Eb" "G" "Bb") phrase-start (7))
+(n ("G4" . 8))
+(n ("D4" . 8))
+(n ("Eb4" . 8) punct-lf t)
+(n ("Bb3" . 8) q ("Bb" "D" "F"))
+(n ("D4" . 8) punct-lf t)
+(bar 8 n ("Eb3" . 2) q ("Eb" "G" "Bb") phrase-end (5 6 7))

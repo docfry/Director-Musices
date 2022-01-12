@@ -1,0 +1,44 @@
+mono-track
+ :trackname "V1"
+ :midi-channel 1
+ :midi-initial-volume 0
+ :track-delay 0
+ :midi-initial-program 1
+ :synth "SBlive"
+(bar 1 n ("D3" . 4) mm 101 q ("D" "F#" "A") mel "shubertunfin" modus
+ "maj" key "D" subph t meter (3 4) phrase-start (5 6 7))
+(n ("A2" . 4) dot 1 phrase-end (7) punct-lf t)
+(n ("D3" . 8) phrase-start (7))
+(bar 2 n ("C#3" . 8) dot 1 q ("A" "C#" "E") punct-lf t)
+(n ("D3" . 16))
+(n ("E3" . 4) dot 1 phrase-end (6 7) punct-lf t)
+(n ("D3" . 8) phrase t phrase-start (6 7))
+(bar 3 n ("C#3" . 8) dot 1 punct-lf t)
+(n ("D3" . 16))
+(n ("E3" . 8) phrase-end (7) punct-lf t)
+(n ("A2" . 8) phrase-start (7))
+(n ("B2" . 8))
+(n ("C#3" . 8))
+(bar 4 n ("D3" . 4) q ("D" "F#" "A"))
+(n ("A2" . 2) phrase-end (5 6 7) punct-lf t)
+(bar 5 n ("D3" . 4) subph t phrase-start (5 6 7))
+(n ("A2" . 4) dot 1 phrase-end (7) punct-lf t)
+(n ("D3" . 8) phrase-start (7))
+(bar 6 n ("D#3" . 8) dot 1 q ("B" "D#" "F#") punct-lf t)
+(n ("E3" . 16))
+(n ("F#3" . 4) dot 1 phrase-end (6 7) punct-lf t)
+(n ("E3" . 8) phrase t phrase-start (6 7))
+(bar 7 n ("D#3" . 8) dot 1 punct-lf t)
+(n ("E3" . 16))
+(n ("F#3" . 8) phrase-end (7) punct-lf t)
+(n ("B2" . 8) phrase-start (7))
+(n ("C#3" . 8))
+(n ("D#3" . 8))
+(bar 8 n ("E3" . 4) q ("E" "G" "B"))
+(n ("B2" . 4) dot 1 phrase-end (7) punct-lf t)
+(n ("D#3" . 8) phrase t phrase-start (7))
+(bar 9 n ("E3" . 4) q ("A" "C#" "E"))
+(n ("A2" . 4) phrase-end (7))
+(n ("B2" . 8) phrase-start (7))
+(n ("C#3" . 8))
+(bar 10 n ("D3" . 2) q ("D" "F#" "A") phrase-end (5 6 7))
