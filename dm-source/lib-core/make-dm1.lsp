@@ -28,7 +28,7 @@
    #+:lispworks ;mac
    ;(setf (logical-pathname-translations "dm") `(("**;*.*.*" "/afs/nada.kth.se/dept/tmh/music/proj/musperf/dm/**/*.*")))
    ;(setf (logical-pathname-translations "dm") `(("**;*.*.*" "/Users/afriberg/github/dm/dm-source/**/*.*")))
-   (setf (logical-pathname-translations "dm") `(("**;*.*.*" "/Users/afriberg/Director-Musices/dm-source/**/*.*")))
+   (setf (logical-pathname-translations "dm") `(("**;*.*.*" "/Users/afriberg/Documents/GitHub/Director-Musices/dm-source/**/*.*")))
    )
 ;/Users/afriberg/github/dm/dm-source/lib-core
 
