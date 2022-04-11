@@ -644,6 +644,7 @@
       (if (not (this 'rest)) (set-this :f0-run-mean (compute-mean-f0 ibar1 *i*)))
       ))))
 
+;220408 problem if there are no bars indicated as in the jazz data
 (defun mark-running-mean-2-bars-or-10-notes ()
   (each-track 
    (let ((ibar1 0) (ibar2 0) (ibar3 0)
@@ -658,6 +659,38 @@
       ;(print-ll " bar = " (this 'bar) " *i* = " *i* " ibar1 = " ibar1)
       (if (not (this 'rest)) (set-this :f0-run-mean (compute-mean-f0 ibar1 *i*)))
       ))))
+
+;220408 new version that is instead starting at the length of two bars before the current note
+; will be slightly different but better since the length will be more constant
+; needs a meter mark and tempo mark on first note
+(defun mark-running-mean-2-bars-length-or-10-notes ()
+  (let ((meter 0)(tempo 0)(drlength 0) i2bars)
+    (each-note
+      (when (this 'meter) (setq meter (this 'meter)))
+      (when (this 'mm) (setq tempo (this 'mm)))
+      (setq drlength (* 2 (* (car meter) (/ 60000 tempo))))
+      (setq i2bars (get-i-dr-length-before drlength))
+      (when (< (compute-number-of-notes-excluding-rests i2bars *i*) 10) ;go further back if few notes
+          (setq i2bars (get-i-n-notes-before-excluding-rests 10)) )
+      ;(if (= *i* 20) (print-ll " drlength " drlength " i2bars = " i2bars))
+      (if (not (this 'rest)) (set-this :f0-run-mean (compute-mean-f0 i2bars *i*)))
+      )))
+;a shorter version
+(defun mark-running-mean-1-bar-length-or-5-notes ()
+  (let ((meter 0)(tempo 0)(drlength 0) i1bar)
+    (each-note
+      (when (this 'meter) (setq meter (this 'meter)))
+      (when (this 'mm) (setq tempo (this 'mm)))
+      (setq drlength (* 1 (* (car meter) (/ 60000 tempo))))
+      (setq i1bar (get-i-dr-length-before drlength))
+      (when (< (compute-number-of-notes-excluding-rests i1bar *i*) 5) ;go further back if few notes
+        (setq i1bar (get-i-n-notes-before-excluding-rests 5))
+        ;(print-ll "*i* = " *i* " less than 5 notes in bar, new start: " i1bar)
+        )
+      ;(if (= *i* 20) (print-ll " drlength " drlength " i1bar = " i1bar))
+      (if (not (this 'rest)) (set-this :f0-run-mean (compute-mean-f0 i1bar *i*)))
+      )))
+
 
 (defun mark-running-mean-3-bars ()
   (each-track
@@ -706,12 +739,32 @@
     iresult
       ))
 
+;get the note index for the note occuring at drlength before current note
+(defun get-i-dr-length-before (drlength)
+  (let ((drsum 0) (iresult 0) )
+    (if (<= *i* 1) 
+        (setq iresult 0)
+      (loop for i from (1- *i*) downto 0 do
+              (incf drsum (iget i 'dr))
+              (setq iresult i)
+            (when (>= drsum drlength)
+              (return) )))
+    iresult
+      ))
+
 #|
 (defun test ()
   (each-note-if
    (= *i* 12)
    (then
     (print-ll " i " (get-i-n-notes-before-excluding-rests 10))
+    )))
+
+(defun test ()
+  (each-note-if
+   (= *i* 12)
+   (then
+    (print-ll " i " (get-i-dr-length-before 1000))
     )))
 |#
 

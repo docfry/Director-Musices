@@ -390,6 +390,17 @@
           )))
     (rule-apply-list-melsync rulelist) ))
 
+;; 220411 test a bug with accents
+(defun apply-all-melsync (quant)
+  (let
+      ((rulelist
+        `(
+          (mark-metrical-accent)
+          (metrical-accent ,quant) 
+          (normalize-sl)
+          (normalize-dr)          )))
+    (apply-rule-list-melodic-sync rulelist) ))
+
 (defvar *batch1*
     '(
       "hkyrie"
