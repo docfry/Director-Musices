@@ -673,7 +673,7 @@
       (when (< (compute-number-of-notes-excluding-rests i2bars *i*) 10) ;go further back if few notes
           (setq i2bars (get-i-n-notes-before-excluding-rests 10)) )
       ;(if (= *i* 20) (print-ll " drlength " drlength " i2bars = " i2bars))
-      (if (not (this 'rest)) (set-this :f0-run-mean (compute-mean-f0 i2bars *i*)))
+      (if (not (this 'rest)) (set-this :f0-run-mean-2bar-len (compute-mean-f0 i2bars *i*)))
       )))
 ;a shorter version
 (defun mark-running-mean-1-bar-length-or-5-notes ()
@@ -688,7 +688,7 @@
         ;(print-ll "*i* = " *i* " less than 5 notes in bar, new start: " i1bar)
         )
       ;(if (= *i* 20) (print-ll " drlength " drlength " i1bar = " i1bar))
-      (if (not (this 'rest)) (set-this :f0-run-mean (compute-mean-f0 i1bar *i*)))
+      (if (not (this 'rest)) (set-this :f0-run-mean-1bar-len (compute-mean-f0 i1bar *i*)))
       )))
 
 
