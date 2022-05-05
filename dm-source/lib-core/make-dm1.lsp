@@ -1,6 +1,8 @@
 ;;
 ;; ****************************************
 ;; This file is the loader for Director Musices
+;; Change the appropriate pathname before loading this file
+;; After everything loaded ok eval (in-package :dm) in the listener
 ;; Anders Friberg
 ;; ****************************************
 ;;
@@ -24,20 +26,15 @@
    (setf (logical-pathname-translations "dm") `(("**;*.*.*" #P"musperf:dm:**:*.*")))
    #+:mswindows
   (setf (logical-pathname-translations "dm") `(("**;*.*.*" "C:\\Users\\afriberg\\Documents\\Github\\Director-Musices\\dm-source\\**\\*.*")))  ; new win7 github
-  ;;;(setf (logical-pathname-translations "dm") `(("**;*.*.*" "J:\\nada.kth.se\\dept\\tmh\\music\\proj\\musperf\\dm\\**\\*.*")))
    #+:lispworks ;mac
-   ;(setf (logical-pathname-translations "dm") `(("**;*.*.*" "/afs/nada.kth.se/dept/tmh/music/proj/musperf/dm/**/*.*")))
-   ;(setf (logical-pathname-translations "dm") `(("**;*.*.*" "/Users/afriberg/github/dm/dm-source/**/*.*")))
    (setf (logical-pathname-translations "dm") `(("**;*.*.*" "/Users/afriberg/Documents/GitHub/Director-Musices/dm-source/**/*.*")))
    )
-;/Users/afriberg/github/dm/dm-source/lib-core
-
 
 (translate-logical-pathnames-PD)
 
 (load "dm:lib-core;make-dm2.lsp")
 
-;;uncomment for creating a stand-alone application in LispWorks
+;;uncomment for creating a stand-alone application in LispWorks (OLD)
 ;;should be called from command window
 ;;lispworks-5-0-0-x86-win32.exe -init make-dm1.lsp
 
