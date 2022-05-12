@@ -379,6 +379,7 @@
         )))))))
 
 ;new version also updating durations of rests
+;added also wrong pitch before rest or last, last rest in score but not in perf
 (defun load-midifile-perf-align-to-score-fpath (mf-fpath mus-fpath)
   (let ((mf-perf nil))
     (set-midi-performance-input)    ;set preset parameters for midi input
@@ -393,6 +394,8 @@
       (block end-of-mf
         (each-note
           (if (this 'bar) (print-ll "bar = " (this 'bar)))
+          ;exit if last note is a rest in score that is missing in midi
+          (when (and (last?) (this 'rest) (>= mfi mflen)) (print-ll "last note a rest in score, not in midi") (set-this :align :no-final-rest-in-midi) (return-from end-of-mf nil))
           ;exit if beyond last in midi seg list
           (when (>= mfi mflen) (print-ll "end of midi track") (set-this :align :end-of-midi) (return-from end-of-mf nil))
 
@@ -407,16 +410,13 @@
             (set-this :align :missing-rest)   )
 
            (t ;all other cases, ie not rest in score
-                  ;exit if beyond last in midi seg list
-                  ;(when (>= mfi mflen) (print-ll "end of midi track") (set-this :align :end-of-midi) (return-from end-of-mf nil))
           ;skip rest in midi file (should not happen if everything works)
             (when (get-var (nth mfi mfsegl) 'rest)
               (print-ll "skipping rest in midi track")
               (incf mfi)                          ;skip rest in perf
               (when (>= mfi mflen) (print-ll "end of midi track") (set-this :align :end-of-midi) (return-from end-of-mf nil)) )   ;exit if last
-          ;some debug prints
-            ;(if (this 'bar) (print-ll "bar = " (this 'bar)))
-            ;(print-ll "mf_i= " mfi " score_i= " *i* "  mf_f0= " (get-var (nth mfi mfsegl) 'f0) " score_f0= " (this-f0) "  mf_n= " (get-var (nth mfi mfsegl) 'n) " score_n= " (this 'n))
+           ;some debug prints
+           ;(print-ll "mf_i= " mfi " score_i= " *i* "  mf_f0= " (get-var (nth mfi mfsegl) 'f0) " score_f0= " (this-f0) "  mf_n= " (get-var (nth mfi mfsegl) 'n) " score_n= " (this 'n))
 
           ;check all cases
             (cond
@@ -482,7 +482,21 @@
                 (incf mfi)
                 (incf mfi) ;one extra for the rest in mf
                 ))
-              ;we can also check for: wrong pitch before rest in score, wrong pitch last note
+
+              ;wrong pitch before rest in score or last note. One note before needs to be a match, no rests before
+             ((and (or (last?) (next 'rest))
+                   (not (first?))
+                   (not (prev 'rest))
+                   (not (get-var (nth (1- mfi) mfsegl) 'rest))
+                   (= (get-var (nth (1- mfi) mfsegl) 'f0) (prev-f0)) ) ;prev notes match perfectly
+              (progn
+                (set-this 'sl (get-var (nth mfi mfsegl) 'sl))
+                (set-this 'dr (get-var (nth mfi mfsegl) 'dr)) ;set dr for the corresponding notes
+                (set-this :align :wrong-pitch-before-rest-or-last)  ;write in score
+                (set-this :wrong-pitch (get-var (nth mfi mfsegl) 'f0))
+                (print-ll "One wrong pitch  before rest or last, prev note match without rests")
+                (incf mfi)
+                ))
 
              ;one missing note in perf, no rest in score after
              ((and (not (last?))        ;not last in score
