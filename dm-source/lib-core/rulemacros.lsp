@@ -345,6 +345,7 @@
 ;define also 
 ;,  multiply-this
 
+;Possible extension
 ;keywords: only-existing-values-p, offset, output list/mean/sum/first
 ; a version with keywords make the this-dr function unecessary
 
@@ -718,6 +719,20 @@
            (return-from end i)
            ))))
 
+;the same but for specified segment list (track)
+;can be run outside of rule macro
+;220517 added
+(defun i?next-note-in-seglist (i segl)
+  (untilexit end
+    (incf i)
+    (cond ((>= i (1- (length segl)))
+           (return-from end nil))
+          ((and (get-var (nth i segl) 'n) 
+                (car (get-var (nth i segl) 'n)) 
+                (not (get-var (nth i segl) 'rest)) )
+           (return-from end i)
+           ))))
+
 ;get previous note excluding rests
 ;not found -> nil
 (defun i?prev-note (i)
@@ -726,6 +741,20 @@
     (cond ((< i 0)
            (return-from end nil))
           ((and (iget i 'n) (car (iget i 'n)) (not (iget i 'rest)))
+           (return-from end i)
+           ))))
+
+;the same but for specified segment list (track)
+;can be run outside of rule macro
+;220517 added
+(defun i?prev-note-in-seglist (i segl)
+  (untilexit end
+    (decf i)
+    (cond ((< i 0)
+           (return-from end nil))
+          ((and (get-var (nth i segl) 'n) 
+                (car (get-var (nth i segl) 'n)) 
+                (not (get-var (nth i segl) 'rest)) )
            (return-from end i)
            ))))
 

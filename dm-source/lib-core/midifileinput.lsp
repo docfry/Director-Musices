@@ -227,7 +227,6 @@
           (set-this :align :no)  ;write in score
           (print-ll "No matching") )
         )))))
-|#
 
 (defun load-midifile-perf-align-to-score-fpath (mf-fpath mus-fpath)
   (let ((mf-perf nil))
@@ -377,6 +376,7 @@
               (print-ll "No matching")
               (incf mfi) )) ;go to next and hope for the best (thus assume that it is a pitch error)
         )))))))
+
 
 ;new version also updating durations of rests
 ;added also wrong pitch before rest or last, last rest in score but not in perf
@@ -551,6 +551,157 @@
                 (print-ll "No matching")
                 (incf mfi) )) ;go to next and hope for the best (thus assume that it is a pitch error)
              ))))))))
+|#
+
+;new version with new heuristics: checking previous or next note disregarding rests.
+;just wrong pitch fixed
+(defun load-midifile-perf-align-to-score-fpath (mf-fpath mus-fpath)
+  (let ((mf-perf nil))
+    (set-midi-performance-input)    ;set preset parameters for midi input
+    (load-midifile-fpath mf-fpath)  ;choose midifile
+    (setq mf-perf *active-score*)
+    (load-score-fpath mus-fpath)    ;choose mus file
+    (merge-all-ties-and-rests)      ;defined in initconvert.lsp (from optimize-accent..-3), note that it is a destructve operation
+    (let ((mfsegl (segment-list (car (track-list mf-perf))))         ;a list of all segments in the first track, ie monophonic
+          (mflen (length (segment-list (car (track-list mf-perf))))) ;total length of midi seg list
+          (mfi 0)        ;note index in midifile
+          ) 
+      (block end-of-mf
+        (each-note
+          (if (this 'bar) (print-ll "bar = " (this 'bar)))
+          ;exit if last note is a rest in score that is missing in midi
+          (when (and (last?) (this 'rest) (>= mfi mflen)) (print-ll "last note a rest in score, not in midi") (set-this :align :no-final-rest-in-midi) (return-from end-of-mf nil))
+          ;exit if beyond last in midi seg list
+          (when (>= mfi mflen) (print-ll "end of midi track") (set-this :align :end-of-midi) (return-from end-of-mf nil))
+
+        ;update rests
+          (cond 
+           ((and (this 'rest) (get-var (nth mfi mfsegl) 'rest)) ;rests in both
+            (set-this 'dr (get-var (nth mfi mfsegl) 'dr))
+            (incf mfi) )
+
+           ((and (this 'rest) (not (get-var (nth mfi mfsegl) 'rest))) ;only rest in score
+            (print-ll "Rest in score but not in midi")
+            (set-this :align :missing-rest)   )
+
+           (t ;all other cases, ie not rest in score
+
+            ;skip first rest in midi but not in score
+            (when (and (first?) (not (this 'rest)) (get-var (nth mfi mfsegl) 'rest))
+              (print-ll "Skipping first rest in midi")
+              (set-this :align :skipping-first-rest-in-midi)
+              (incf mfi) )
+
+          ;skip rest inside midi file (should not happen if everything works)
+            (when (and (not (first?)) (get-var (nth mfi mfsegl) 'rest))
+              (print-ll "skipping rest in midi track")
+              (set-this :align :skipping-rest-in-midi)
+              (incf mfi)                          ;skip rest in perf
+              (when (>= mfi mflen) (print-ll "end of midi track") (set-this :align :end-of-midi) (return-from end-of-mf nil)) )   ;exit if last
+           ;some debug prints
+           ;(print-ll "mf_i= " mfi " score_i= " *i* "  mf_f0= " (get-var (nth mfi mfsegl) 'f0) " score_f0= " (this-f0) "  mf_n= " (get-var (nth mfi mfsegl) 'n) " score_n= " (this 'n))
+
+          ;check all cases
+            (cond
+            ;check if right note or chord containing the right note
+             ((or (and (listp (get-var (nth mfi mfsegl) 'f0)) ;chord?
+                       (or (= (car (get-var (nth mfi mfsegl) 'f0)) (this-f0))  ;check if any of the two first notes in the chord is the right note
+                           (= (cadr (get-var (nth mfi mfsegl) 'f0)) (this-f0)) ))
+                  (= (get-var (nth mfi mfsegl) 'f0) (this-f0)) ) ;perfect match
+              (progn
+                (set-this 'sl (get-var (nth mfi mfsegl) 'sl))
+                (set-this 'dr (get-var (nth mfi mfsegl) 'dr)) ;set dr for the corresponding notes
+                (when (listp (get-var (nth mfi mfsegl) 'f0)) ;when f0 is a list write to score
+                  (print-ll "Simultaneous notes, one match")
+                  (set-this :align :sim-notes-one-match) ) ;write in score
+              ;check for articulation rest in mf (and not in score)
+                (if (and (not (last?))                        
+                         (not (next 'rest))
+                         (not (>= (1+ mfi) mflen)) ;not last in mf list
+                         (get-var (nth (1+ mfi) mfsegl) 'rest) )
+                    (progn
+                      (add-this 'dr (get-var (nth (1+ mfi) mfsegl) 'dr))  ;add the rest dr
+                      (set-this 'dro (get-var (nth (1+ mfi) mfsegl) 'dr)) ;put as articulation
+                      (incf mfi) ; step one more
+                      ))
+                (incf mfi) ))
+
+             ;check if it is a chord but wrong pitches - (need to be sorted out for the following tests)
+             ((listp (get-var (nth mfi mfsegl) 'f0))
+              (progn 
+                (print-ll "Simultaneous notes, NO match")
+                (set-this :align :sim-notes-no-match)  ;write in score
+                (incf mfi) )) ;go to next and hope for the best
+            
+             ;wrong pitch but next ones match, rest/no rest in perf or score
+             ((and (i?next-note *i*) 
+                   (i?next-note-in-seglist mfi mfsegl)
+                   (= (get-var (nth (i?next-note-in-seglist mfi mfsegl) mfsegl) 'f0) 
+                      (iget (i?next-note *i*) 'f0) ))
+              (progn
+                (set-this 'sl (get-var (nth mfi mfsegl) 'sl))
+                (set-this 'dr (get-var (nth mfi mfsegl) 'dr)) ;set dr for the corresponding notes
+                (print-ll "One wrong pitch, next notes match")
+                (set-this :align :wrong-pitch)  ;write in score
+                (set-this :wrong-pitch (get-var (nth mfi mfsegl) 'f0))  ;write in score
+                (when (and (not (next 'rest)) (get-var (nth (1+ mfi) mfsegl) 'rest)) ;when not next rest in score but next rest in midi
+                  (add-this 'dr (get-var (nth (1+ mfi) mfsegl) 'dr)) ;add the rest dr
+                  (set-this 'dro (get-var (nth (1+ mfi) mfsegl) 'dr)) ;put as articulation
+                  (incf mfi) ) ;one extra for the rest in mf
+                (incf mfi) ))
+
+             ;wrong pitch last note or last note before rest. One note before needs to be a match, rest/no rest in perf or score
+             ((and (not (i?next-note *i*)) ;last note or last before rest
+                   (i?prev-note *i*)
+                   (i?prev-note-in-seglist mfi mfsegl)
+                   (= (get-var (nth (i?prev-note-in-seglist mfi mfsegl) mfsegl) 'f0) ;compare the notes
+                      (iget (i?prev-note *i*) 'f0) ))
+
+              (progn
+                (set-this 'sl (get-var (nth mfi mfsegl) 'sl))
+                (set-this 'dr (get-var (nth mfi mfsegl) 'dr)) ;set dr for the corresponding notes
+                (set-this :align :wrong-pitch-last-or-last-before-rest)  ;write in score
+                (set-this :wrong-pitch (get-var (nth mfi mfsegl) 'f0))
+                (print-ll "One wrong pitch last or last before rest, prev note match")
+                (incf mfi)
+                ))
+
+             ;one missing note in perf, rest/no rest in score after
+             ((and (i?next-note *i*)        ;next note exists
+                   (= (get-var (nth mfi mfsegl) 'f0) (iget (i?next-note *i*) 'f0))   ;next note in score match
+                   )
+              (progn ;we just do nothing which means that next *i* increments and mfi stays the same which should result in a hit
+                (set-this :align :missing-note)  ;write in score
+                (print-ll "One missing note, next notes match")
+                ))
+             ;fix also last note
+
+             ;one extra note in perf, rest/no rest
+             ((and (i?next-note-in-seglist mfi mfsegl) ;there is a following note in perf
+                   (= (get-var (nth (i?next-note-in-seglist mfi mfsegl) mfsegl) 'f0) ;next note in perf match
+                      (this-f0) ))
+              (progn
+                (when (i?prev-note *i*) (iadd (i?prev-note *i*) 'dr (get-var (nth mfi mfsegl) 'dr))) ;add the dr of extra note to prev note in score
+                (set-this :align :extra-note-before)  ;write in score
+                (set-this :extra-note-before (get-var (nth mfi mfsegl) 'f0))
+                (when (and (i?prev-note *i*) 
+                           (get-var (nth (1+ mfi) mfsegl) 'rest)) ;next a rest in perf
+                  (iadd (i?prev-note *i*) 'dr (get-var (nth (1+ mfi) mfsegl) 'dr))  ;add dr to prev note
+                  (iset (i?prev-note *i*) 'dro (get-var (nth (1+ mfi) mfsegl) 'dr)) ;set articulation
+                  (incf mfi) ) ;step one for the rest in perf
+                (incf mfi) ;step one note in perf
+                (decf *i*) ;step one note back in score (since next loop will step one forward) (can be two bars indicated if first note in bar)
+                (print-ll "One extra note, next notes match") ))
+             
+             (t ;if not a match was found
+              (progn
+                (set-this 'sl (get-var (nth mfi mfsegl) 'sl)) ;transfer sl and dr anyway
+                (set-this 'dr (get-var (nth mfi mfsegl) 'dr)) 
+                (set-this :align :no)  ;write in score
+                (print-ll "No matching")
+                (incf mfi) )) ;go to next and hope for the best (thus assume that it is a pitch error)
+             ))))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
