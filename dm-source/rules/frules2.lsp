@@ -50,6 +50,25 @@
                     (/ (- (this-f0) f0-mean) 4.0)) )))
      )))
 
+;applies the same high-loud as above but saves to another variable
+;220610 used for feature calculation in Gabriel's study
+(defun high-loud-varname (quant &key (varname :sl-high-loud))
+  (each-track
+   (let ((i 0) (f0-sum 0.0) (f0-mean 60))
+     (each-note-if
+      (this 'f0)
+      (then
+       (incf i)
+       (incf f0-sum (this-f0))
+       ))
+     (setq f0-mean (/ f0-sum i))
+     (each-note-if
+      ;(this 'sl)
+      (this 'f0)
+      (then
+       (set-this varname (* quant (/ (- (this-f0) f0-mean) 4.0)) )))
+     )))
+
 ;;091203/af new version with compressed amount
 ;;square-root with factor 0.6 gives approximately 3dB difference in the
 ;;middle octave centered around mean
