@@ -19,6 +19,7 @@
 ;;120313/af adjusted accent quantities
 ;;120314/af added width scaling
 ;;120417/af added dynamic-accent
+;;220615/af something 
 
 
 (in-package :dm)
@@ -141,7 +142,9 @@
 ;; will probably not work with negative values as well
 ;; 120327/af
 ;; 130114/af included dsl (new score dynamics)
+#|
 (defun accent-apply-sl (inote ext-left ext-right peak curve-left curve-right)
+  (print-ll "accent-apply-sl input args: inote " inote " ext-left " ext-left " ext-right " ext-right " peak " peak " curve-left " curve-left " curve-right " curve-right)
   (let ((istart (if (float ext-left)
                    (i?ndr-before-index inote ext-left)
                   (max (- note-number ext-left) 0) ))
@@ -158,7 +161,31 @@
     ;transfer dsl to sl
     (loop for i from istart to iend do
           (if (iget i 'sl) 
-              (iset i  'sl (max (iget i 'sl) (+ (iget i 'nsl)(iget i 'dsl)))) )
+              (iset i  'sl (max (iget i 'sl) (+ (iget i 'nsl)(iget i 'dsl)))) )  ;why nsl here? It is not in sync track
+          (rem-var (nth i *v*) 'dsl)
+          )))
+|#
+
+;220615 fixed problem with ndr in sync track, updated istart computation, integer in ext-left still used?
+(defun accent-apply-sl (inote ext-left ext-right peak curve-left curve-right)
+  ;(print-ll "accent-apply-sl input args: inote " inote " ext-left " ext-left " ext-right " ext-right " peak " peak " curve-left " curve-left " curve-right " curve-right)
+  (let ((istart (if (float ext-left)
+                   (i?ndr-before-index inote ext-left)
+                  (max (- inote ext-left) 0) ))
+        (iend (if (float ext-right)
+                   (i?ndr-after-index inote ext-right)
+                (min (+ inote ext-left) (i?last)) ))
+        fun-left fun-right power-left power-right )
+    ;translate from keywords to function names and power
+    ;(print-ll "istart " istart " inote " inote " iend " iend)
+    (multiple-value-setq (fun-left power-left) (accents-translate-curv-name-left curve-left))
+    (multiple-value-setq  (fun-right power-right) (accents-translate-curv-name-right curve-right))
+    (iset-ramp-x2-decimal-last istart inote 0.0 0.0 0.0 peak 'dsl power-left fun-left fun-left)
+    (iset-ramp-x2-decimal-last inote iend 0.0 0.0 peak 0.0 'dsl power-right fun-right fun-right)
+    ;transfer dsl to sl
+    (loop for i from istart to iend do
+          (if (iget i 'sl) 
+              (iset i  'sl (max (iget i 'sl) (+ (if (iget i 'nsl) (iget i 'nsl) 0) (iget i 'dsl)))) )  ;why nsl here? It is not in sync track, changed so that if nsl is absent it uses 0
           (rem-var (nth i *v*) 'dsl)
           )))
 
@@ -186,13 +213,14 @@
 ;; with max instead of add so that envelopes don't add up
 ;; not really compatible with the traditional rule application but works well with the new rule interaction stuff
 ;; 120327/af
+;; 220615 updated inote as above
 (defun accent-apply-dr (inote ext-left ext-right peak curve-left curve-right)
   (let ((istart (if (float ext-left)
                    (i?ndr-before-index inote ext-left)
-                  (max (- note-number ext-left) 0) ))
+                  (max (- inote ext-left) 0) ))
         (iend (if (float ext-right)
                    (i?ndr-after-index inote ext-right)
-                (min (+ note-number ext-left) (i?last)) ))
+                (min (+ inote ext-left) (i?last)) ))
         fun-left fun-right power-left power-right )
     ;translate from keywords to function names and power
     (multiple-value-setq (fun-left power-left) (accents-translate-curv-name-left curve-left))
