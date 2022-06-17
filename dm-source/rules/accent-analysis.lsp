@@ -61,10 +61,10 @@
 ; main function used for immanent metrical accent model in Bisesi-Friberg-Parncutt-2019
 ; 4 different beat levels are defined
 (defun mark-metrical-accent ()
-  (rem-all :beat0)(rem-all :beat1)(rem-all :beat2)(rem-all :beat3)
-  (rem-all :beat0sal)(rem-all :beat1sal)(rem-all :beat2sal)(rem-all :beat3sal)
-  (rem-all :beat0dr)(rem-all :beat1dr)(rem-all :beat2dr)(rem-all :beat3dr)
-  (rem-all 'accent-m)
+  ;(rem-all :beat0)(rem-all :beat1)(rem-all :beat2)(rem-all :beat3)
+  ;(rem-all :beat0sal)(rem-all :beat1sal)(rem-all :beat2sal)(rem-all :beat3sal)
+  ;(rem-all :beat0dr)(rem-all :beat1dr)(rem-all :beat2dr)(rem-all :beat3dr)
+  ;(rem-all 'accent-m)
   ;mark metrical levels
   (mark-beat-levels)
   ;default saliences
@@ -83,7 +83,7 @@
   (let ((beat0sal 0) (beat1sal 0) (beat2sal 0) (beat3sal 0))
     (each-note-if
      (not (this 'rest))
-     (not (first?))  ;quickfix since it doesn't work to apply accent on the first note
+     ;(not (first?))  ;quickfix since it doesn't work to apply accent on the first note
      (then
       (setq beat0sal (or (this :beat0sal) 0))
       (setq beat1sal (or (this :beat1sal) 0))
@@ -92,7 +92,12 @@
       (set-this 'accent-m (* 0.3 (+ beat0sal beat1sal beat2sal beat3sal)))
       ;ERICA rescaled the salience
       )))
+  (rem-all :beat0)(rem-all :beat1)(rem-all :beat2)(rem-all :beat3)
+  (rem-all :beat0sal)(rem-all :beat1sal)(rem-all :beat2sal)(rem-all :beat3sal)
+  (rem-all :beat0dr)(rem-all :beat1dr)(rem-all :beat2dr)(rem-all :beat3dr)
   )
+
+
 
 ;testing simple accents for Andreas 210303
 #|
@@ -135,6 +140,7 @@
 
 ;list of translations from meter to beat level fractions
 ;used in Bisesi-Friberg-Parncutt-2019
+#|
 (defun get-beat-fractions (meter)
   (let ((beat0 1/8) (beat1 1/4)(beat2 2/4)(beat3 4/4)) ;default 4/4
         (cond
@@ -151,12 +157,14 @@
          )
         (list beat0 beat1 beat2 beat3)
         ))
+|#
 
 ;170725 added meters for the 60 mel dataset, the old ones above unchanged
 ;compound meters are not fully defined since it requires a (manual) analysis of the score
 ;no contradictory cases found so far...
 ;Should be compatible with Bisesi-Friberg-Parncutt-2019
 ;used in Friberg-Bisesi-Addessi-Baroni-2019
+#|
 (defun get-beat-fractions (meter)
   (let ((beat0 1/8) (beat1 1/4)(beat2 2/4)(beat3 4/4)) ;default 4/4
         (cond
@@ -197,6 +205,7 @@
          )
         (list beat0 beat1 beat2 beat3)
         ))
+|#
 ;211011 Added 7/8 for Gabriel study
 (defun get-beat-fractions (meter)
   (let ((beat0 1/8) (beat1 1/4)(beat2 2/4)(beat3 4/4)) ;default 4/4
@@ -555,9 +564,9 @@
 ; final version for Bisesi-Friberg-Parncutt-2019
 (defun mark-melodic-accent ()
   (rem-all 'accent-c)
-  (rem-all :melsal1)
-  (rem-all :melsal2)
-  (rem-all :melsal3)
+  ;(rem-all :melsal1)
+  ;(rem-all :melsal2)
+  ;(rem-all :melsal3)
   (mark-running-mean-2-bars-or-10-notes) 
      (each-note-if
       (not (first?))
@@ -576,6 +585,9 @@
        ))
   (mark-melodic-accent-remove-stepwise)
   (mark-melodic-accent-retain-max-of-three)
+  (rem-all :melsal1)
+  (rem-all :melsal2)
+  (rem-all :melsal3)
   )
 
 ; put the salience to zero if middle of stepwise motion up or down
