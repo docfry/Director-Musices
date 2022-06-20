@@ -742,7 +742,8 @@
           ))))))
 
 ;211022 new version excluding tied notes
-(defun normalize-sl ()
+;220620 changed to a new name, did not work with the metrical accents since they add SL on tied notes that also can be useful
+(defun normalize-sl-no-ties ()
   (each-track
     (let ((sltot 0.0)
           (nsltot 0.0)

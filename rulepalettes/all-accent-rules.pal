@@ -1,0 +1,13 @@
+(in-package "DM")
+
+(set-dm-var 'all-rules '(
+(mark-metrical-accent )
+(Mark-melodic-accent )
+(Mark-harmonic-accent )
+(metrical-accent 1 :curve :linear :amp 1 :dur 1 :width 0.1)
+(Melodic-contour-accent 1.0 :curve :linear :amp 1 :dur 1 :width 0.1)
+(Harmonic-accent 1.0 :curve :linear :amp 1 :dur 1 :width 1)
+(Normalize-sl )
+(normalize-dr )
+))
+(set-dm-var 'sync-rule-list '((NO-SYNC NIL) (MELODIC-SYNC T)))

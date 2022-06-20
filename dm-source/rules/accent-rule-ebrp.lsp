@@ -30,6 +30,11 @@
 ;; dur    scaling parameter for duration (IOI), default 1 (no scaling)
 ;; width  scaling parameter for width, default 1 (no scaling)
 
+;; 220620 Note that a linear scaling of the salience is done resulting in a positive value of 1.875 even when the marked salience is zero
+;; The reason is that a certain threshold is needed in order to perceive the performed accent
+;; However, when almost all notes are marked with an accent it is not working properly
+;; In order to get zero resulting salience then a salience value of -3 has to marked on the note
+
 ;new accent only for dynamic variation
 ;tempo variation possible if the :dur keyword is used with a value greater than 0
 ;tag in the score: accent-d

@@ -64,7 +64,7 @@
   ;(rem-all :beat0)(rem-all :beat1)(rem-all :beat2)(rem-all :beat3)
   ;(rem-all :beat0sal)(rem-all :beat1sal)(rem-all :beat2sal)(rem-all :beat3sal)
   ;(rem-all :beat0dr)(rem-all :beat1dr)(rem-all :beat2dr)(rem-all :beat3dr)
-  ;(rem-all 'accent-m)
+  (rem-all 'accent-m)
   ;mark metrical levels
   (mark-beat-levels)
   ;default saliences
@@ -97,7 +97,28 @@
   (rem-all :beat0dr)(rem-all :beat1dr)(rem-all :beat2dr)(rem-all :beat3dr)
   )
 
-
+;220620 A simple version in which accent salience of each metrical level is specified explicitly
+; had to introduce the quant parameter for the rule palette
+(defun mark-metrical-accent-simple (quant &key (m0 0.5)(m1 1)(m2 1.5)(m3 2))
+  (rem-all 'accent-m)
+  ;mark metrical levels
+  (mark-beat-levels)
+  ;default saliences
+  (each-note-if
+    (not (this 'rest))
+    (then
+      (cond
+       ((and (this :beat3) m3)
+        (set-this 'accent-m (* quant m3)) )
+       ((and (this :beat2) m2)
+        (set-this 'accent-m (* quant m2)) )
+       ((and (this :beat1) m1)
+        (set-this 'accent-m (* quant m1)) )
+       ((and (this :beat0) m0)
+        (set-this 'accent-m (* quant m0)) )
+       )))
+  (rem-all :beat0)(rem-all :beat1)(rem-all :beat2)(rem-all :beat3)
+  )
 
 ;testing simple accents for Andreas 210303
 #|
