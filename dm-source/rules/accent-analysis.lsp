@@ -5,58 +5,14 @@
 ;;170725/af added more meters, no change to previous def of metric accent rule
 ;;210316/af checked the correspondence to the papers and clarified the comments
 ;;          metrical and melodic accent used in Bisesi-Friberg-Parncutt-2019
+;;220620 Added a simple metrical accent, some cleaning
 
 (in-package :dm)
-
-#|
-(defun mark-metrical-accent ()
-  (rem-all :beat)
-  (rem-all 'accent-m-auto)
-  
-  (mark-beat)
-  
-  (each-note-if
-   (this :beat)
-   (this 'bar)
-   (not (this 'rest))
-   (then
-    (set-this 'accent-m-auto 4) ))
-  
-  (each-note-if
-   (this :beat)
-   (not (this 'bar))
-   (not (this 'rest))
-   (then
-    ;(set-this 'accent-m-auto 0)
-    ))
-  )
-|#
 
 
 ;-----------------------------------------------------------------------
 ;-------------- metrical accent ----------------------------------------
 ;-----------------------------------------------------------------------
-
-; immanent metrical accent model in Bisesi-Friberg-Parncutt-2019
-
-#|
-;a short version setting accent-m directly
-;didnt work with sync using new name
-(defun mark-metrical-accent-test ()
-  (rem-all :beat0)(rem-all :beat1)(rem-all :beat2)(rem-all :beat3)
-  (rem-all 'accent-m)
-  
-  (mark-beat-levels)
-  
-  (each-note-if
-   (not (this 'rest))
-   (then
-    (when (this :beat0) (set-this 'accent-m nil))
-    (when (this :beat1) (set-this 'accent-m 3))
-    (when (this :beat2) (set-this 'accent-m 6))
-    (when (this :beat3) (set-this 'accent-m 9))
-    )))
-|#
 
 ; main function used for immanent metrical accent model in Bisesi-Friberg-Parncutt-2019
 ; 4 different beat levels are defined
@@ -99,6 +55,8 @@
 
 ;220620 A simple version in which accent salience of each metrical level is specified explicitly
 ; had to introduce the quant parameter for the rule palette
+; it puts accent-m marks with the specified salience value in the score
+; if nil is specified as the salience value, there will not be any mark at that level
 (defun mark-metrical-accent-simple (quant &key (m0 0.5)(m1 1)(m2 1.5)(m3 2))
   (rem-all 'accent-m)
   ;mark metrical levels
@@ -119,17 +77,6 @@
        )))
   (rem-all :beat0)(rem-all :beat1)(rem-all :beat2)(rem-all :beat3)
   )
-
-;testing simple accents for Andreas 210303
-#|
-(defun test-accents (k)
-  (each-note-if
-    (this :beat1)
-    (not (this 'rest))
-    (then
-      (add-this 'sl (* k 2))
-      )))
-|#
 
 ;mark 4 different metrical levels from notated meter
 ;beat0 sub-beat 
@@ -833,7 +780,7 @@
 ;-----------------------------------------------------------------------
 ;-------------- batch processing for testing ---------------------------
 ;-----------------------------------------------------------------------
-
+#|
 (setq *batch-rules*
       '((mark-metrical-accent)
         (METRICAL-ACCENT 1.5 :CURVE :QUADRATIC :amp 0.25)
@@ -886,4 +833,5 @@
       '(0.5 -0.2 -0.75 -0.75 -0.55 0.65 -0.4 -1.2 -0.75 -1.8 -0.6 0.05 0.67 -1.3 0 -0.2 0.25 1.1 1 -0.25 0.2 -0.2 -0.2 -1.48 3.35 2.5 0.2
             -0.1 -0.7 -0.55 0 0.3 1.95 0.3 -0.15 -0.9 1.4 1.4 1.09 2.3 1.24 2.3 3.4 2.3 2.9 2.55 2.2 2.9 5 3.1 3.2 3.2 6.1 2.9 2.9 3.3
             4.15 3.7 4.65 4.2 4 ))
+|#
 
