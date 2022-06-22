@@ -161,67 +161,12 @@
 ;; take all notes including rests
 ;; selects the highest pitch
 ;; about 50% faster
-#|
-(defun simple-sync-make-mel ()
-   (let ((ton)
-         (last-from-voice)
-         (*sync-track* (make-instance 'mono-track :trackname "sync-track")) )
-      (p-each-note
-       (let ((minl (p-min-all (p-this 'ndr)))
-             (l))
-         
-         ;construct new index list of the shortest notes
-         (dolist (v-oondr minl)           
-           (let ((v (car v-oondr)))
-             (newr l (cons v (v-to-ni v))) ))
-         
-         ;a new master note from top f0
-         (let* ((*cur-notes* l) ;set the master from max f0
-                (from-voice (or (car (p-max (p-this-f0)))
-                                (caar *cur-notes*) )))
-           (setq ton (make-instance 'segment))
-           (simple-sync-copy-prop ton from-voice) )
-         
-         ;copy phrasing from any of the current notes
-         (if (p-this 'phrase-start)
-             (set-var ton 'phrase-start (cdar (p-this 'phrase-start))))
-         (if (p-this 'phrase-end)
-             (set-var ton 'phrase-end (cdar (p-this 'phrase-end))))
-         
-         (add-one-segment *sync-track* ton) ))
-     (set-var (car (segment-list *sync-track*)) :mr t)
-      *sync-track*
-     ))
-|#
+
 ;just taking the top note in *cur-notes*
-(defun simple-sync-make-mel ()
-   (let ((ton)
-         (last-from-voice)
-         (*sync-track* (make-instance 'mono-track :trackname "sync-track")) )
-      (p-each-note
-       (let ((minl (p-min-all (p-this 'ndr)))
-             (l))
-                  
-         ;a new master note from top f0
-         (let* ((from-voice (or (car (p-max (p-this-f0)))
-                                (caar *cur-notes*) ))) ;if all rests?
-           (setq ton (make-instance 'segment))
-           (if (not from-voice) (print-ll "*ndr-to-next* " *ndr-to-next* " *all-notes* " *all-notes* " *cur-notes* " *cur-notes*))
-           (simple-sync-copy-prop ton from-voice) )
-         
-         ;copy phrasing from any of the current notes
-         (if (p-this 'phrase-start)
-             (set-var ton 'phrase-start (cdar (p-this 'phrase-start))))
-         (if (p-this 'phrase-end)
-             (set-var ton 'phrase-end (cdar (p-this 'phrase-end))))
-         
-         (add-one-segment *sync-track* ton) ))
-     (set-var (car (segment-list *sync-track*)) :mr t)
-      *sync-track*
-     ))
 
 ;;101213/af adding accent-dr marks for Erica and Richard
 ;;111116/af adding accent-h,m,c marks for Erica and Richard
+#|
 (defun simple-sync-make-mel ()
   (let ((ton)
         (last-from-voice)
@@ -255,6 +200,7 @@
     (set-var (car (segment-list *sync-track*)) :mr t)
     *sync-track*
     ))
+|#
 
 ;;120914/af added stuff for statistical-analysis
 (defun simple-sync-make-mel ()
@@ -453,10 +399,13 @@
        (set-var ton 'rest t)
        ton ))
 
+
 ;with phrase markers from any voice -funkar ej *cur-notes* ar tillfalligt omdef
+;220622 Added correct note value fraction!
 (defun sync-copy-prop (ton from-voice)
   (set-var ton 'f0 (v-this from-voice 'f0))
-  (set-var ton 'n (v-this from-voice 'n))
+  ;(set-var ton 'n (v-this from-voice 'n))
+  (set-var ton 'n (list (car (v-this from-voice 'n)) *note-fraction-to-next*)) ;insert note value fraction
   (if (v-this from-voice 'sl) (set-var ton 'sl (v-this from-voice 'sl)))
   (if (v-this from-voice 'slur) (set-var ton 'slur (v-this from-voice 'slur)))
   (if (v-this from-voice 'tie) (set-var ton 'tie (v-this from-voice 'tie)))
@@ -464,10 +413,10 @@
   (if (v-this from-voice 'q) (set-var ton 'q (v-this from-voice 'q)))
   (if (v-this from-voice 'key) (set-var ton 'key (v-this from-voice 'key)))
   (if (v-this from-voice 'mm) (set-var ton 'mm (v-this from-voice 'mm)))
-  (if (v-this from-voice 'phrase) (set-var ton 'phrase (v-this from-voice 'phrase)))
-  (if (v-this from-voice 'phrase-start) (set-var ton 'phrase-start (v-this from-voice 'phrase-start)))
-  (if (v-this from-voice 'phrase-end) (set-var ton 'phrase-end (v-this from-voice 'phrase-end)))
-  (if (v-this from-voice 'subph) (set-var ton 'subph (v-this from-voice 'subph)))
+  ;(if (v-this from-voice 'phrase) (set-var ton 'phrase (v-this from-voice 'phrase)))
+  ;(if (v-this from-voice 'phrase-start) (set-var ton 'phrase-start (v-this from-voice 'phrase-start)))
+  ;(if (v-this from-voice 'phrase-end) (set-var ton 'phrase-end (v-this from-voice 'phrase-end)))
+  ;(if (v-this from-voice 'subph) (set-var ton 'subph (v-this from-voice 'subph)))
   (if (v-this from-voice 'rit-start) (set-var ton 'rit-start (v-this from-voice 'rit-start)))
   (if (v-this from-voice 'rit-end) (set-var ton 'rit-end (v-this from-voice 'rit-end)))
   ;(print-ll from-voice " " (v-this from-voice 'n)
@@ -478,10 +427,37 @@
   ton
   )
 
+#|
 ;; consider both rests and notes
 (defun simple-sync-copy-prop (ton from-voice)
   (set-var ton 'f0 (v-this from-voice 'f0))
   (set-var ton 'n (v-this from-voice 'n))
+  (if (v-this from-voice 'rest) (set-var ton 'rest (v-this from-voice 'rest)))
+  (if (v-this from-voice 'sl) (set-var ton 'sl (v-this from-voice 'sl)))
+  (if (v-this from-voice 'slur) (set-var ton 'slur (v-this from-voice 'slur)))
+  ;(if (v-this from-voice 'tie) (set-var ton 'tie (v-this from-voice 'tie)))
+  (if (v-this from-voice 'bar) (set-var ton 'bar (v-this from-voice 'bar)))
+  (if (v-this from-voice 'q) (set-var ton 'q (v-this from-voice 'q)))
+  (if (v-this from-voice 'key) (set-var ton 'key (v-this from-voice 'key)))
+  (if (v-this from-voice 'mm) (set-var ton 'mm (v-this from-voice 'mm)))
+  ;(if (v-this from-voice 'phrase) (set-var ton 'phrase (v-this from-voice 'phrase)))
+  ;(if (v-this from-voice 'phrase-start) (set-var ton 'phrase-start (v-this from-voice 'phrase-start)))
+  ;(if (v-this from-voice 'phrase-end) (set-var ton 'phrase-end (v-this from-voice 'phrase-end)))
+  ;(if (v-this from-voice 'subph) (set-var ton 'subph (v-this from-voice 'subph)))
+  (if (v-this from-voice 'rit-start) (set-var ton 'rit-start (v-this from-voice 'rit-start)))
+  (if (v-this from-voice 'rit-end) (set-var ton 'rit-end (v-this from-voice 'rit-end)))
+  (let ((drmin (get-dr-to-next-event)))
+    (set-var ton 'ndr drmin)
+    (set-var ton 'dr drmin) )
+  ton
+  )
+|#
+
+;220622 Added correct note value fraction!
+(defun simple-sync-copy-prop (ton from-voice)
+  (set-var ton 'f0 (v-this from-voice 'f0))
+  ;(set-var ton 'n (v-this from-voice 'n))
+  (set-var ton 'n (list (car (v-this from-voice 'n)) *note-fraction-to-next*)) ;insert note value fraction
   (if (v-this from-voice 'rest) (set-var ton 'rest (v-this from-voice 'rest)))
   (if (v-this from-voice 'sl) (set-var ton 'sl (v-this from-voice 'sl)))
   (if (v-this from-voice 'slur) (set-var ton 'slur (v-this from-voice 'slur)))

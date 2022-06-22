@@ -10,6 +10,8 @@
 ;;120607/af new notation version with dots and tuples allowed in fraction notation
 ;;121203/af converts at load old note format to new
 ;;120114/af changed score dynamics to nsl
+;;220622 Added get-note-value-fraction-segment (used in new p-each-rule)
+
 
 (in-package :dm)
 
@@ -328,6 +330,39 @@
             )))
     (if (iget i 'tuple)
         (let ((tuple (iget i 'tuple)))
+          (case tuple
+            (3 (setq notevalue (* notevalue 2/3)))
+            (5 (setq notevalue (* notevalue 4/5)))
+            (t (if (listp tuple)
+                   (setq notevalue (/ (* notevalue (car tuple)) (cdr tuple)))
+                 (error 'get-note-value-fraction "this tuplet not implemented: " tuple) ))
+            )))
+    notevalue ))
+
+; 220622 same but for a segment object instead (used in new p-each-rule)
+(defun get-note-value-fraction-segment (seg)
+  (let ((notevalue nil))
+    
+    (if (listp (cdr (get-var seg 'n)))
+        (setq notevalue (apply #'+ (cdr (get-var seg 'n))))  ;from fraction list notation
+      (setq notevalue (/ 1 (cdr (get-var seg 'n)))) ) ;from old notation
+    
+    (if (get-var seg 'dot)
+        (case (get-var seg 'dot)
+          (1 (setq notevalue (* notevalue 3/2)))
+          (2 (setq notevalue (* notevalue 7/4)))
+          (t (error 'get-note-value-fraction "wrong dot value on note" *i*)) ))
+    (if (get-var seg 't)
+        (let ((tuple (get-var seg 't)))
+          (case tuple
+            (3 (setq notevalue (* notevalue 2/3)))
+            (5 (setq notevalue (* notevalue 4/5)))
+            (t (if (listp tuple)
+                   (setq notevalue (/ (* notevalue (car tuple)) (cdr tuple)))
+                 (error 'get-note-value-fraction "this tuplet not implemented: " tuple) ))
+            )))
+    (if (get-var seg 'tuple)
+        (let ((tuple (get-var seg 'tuple)))
           (case tuple
             (3 (setq notevalue (* notevalue 2/3)))
             (5 (setq notevalue (* notevalue 4/5)))
@@ -875,9 +910,16 @@
 ;;   NOTE-TO-NOTEVALUE
 ;; --------------------- 
 ;;
+;only works for old format
 (defun note-to-notevalue (note)
    (cdr note) )
 
+;220622 old and new format, returns fraction (eg 1/8)
+(defun note-to-notevalue-fraction (note)
+  (if (listp (cdr note))
+      (cadr note)
+      (/ 1 (cdr note))
+    ))
 ;
 ;; ---------------------
 ;;   midiNOTEvalue-TO-NOTEVALUE

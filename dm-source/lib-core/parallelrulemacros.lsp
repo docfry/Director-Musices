@@ -3,6 +3,8 @@
 ;;1986/Anders Friberg. 
 ;;9201 cl /af
 ;;971118/af converted to DM2
+;;220622 New version of p-each-note with *note-fraction-to-next* set within the body
+
 
 (in-package :dm)
 
@@ -10,6 +12,7 @@
 (defvar *cur-notes*)
 (defvar *all-notes*)
 (defvar *ndr-to-next*)
+(defvar *note-fraction-to-next*)
 
 ;;---macros------------------------------
 
@@ -20,6 +23,7 @@
 ; *all-notes* = all the current notes in a vertical cut (alist)
 ; *cur-notes* = all notes that is new for each step (alist)
 ; *ndr-to-next* = duration from the current step (time-slice) to next note
+#|
 (defmacro p-each-note (&body body)
   `(let ((nv) (nv-1) (nvec) (tonvec)
          (vvec) (drmin) (vnrlst ())(ndrvec)(vnr))
@@ -81,7 +85,79 @@
         (loop for i from 0 to nv-1 do
              (newr *all-notes* (cons (aref vvec i) (aref nvec i)) ))
         )))
+|#
 
+;; 220622 New version with *note-fraction-to-next* set within the body
+(defmacro p-each-note (&body body)
+  `(let ((nv) (nv-1) (nvec) (tonvec)
+         (vvec) (drmin) (fracmin) (vnrlst ()) (ndrvec) (fracvec) (vnr) )
+     (declare (special nv-1 vvec ndrvec))
+     (setq nv (length (active-track-list *active-score*)))
+     (setq nv-1 (1- nv))
+     (setq nvec (make-array (list nv) :initial-element 0))   ;index vector
+     (setq tonvec  (make-array (list nv) :initial-element 0))  ;current element object array
+     ;ndr to end of note from current vertical view-point:
+     (setq ndrvec  (make-array (list nv) :initial-element 0))
+     (setq fracvec  (make-array (list nv) :initial-element 0)) ;new
+     (setq vvec (apply 'vector (active-track-list *active-score*)))     ;track object vector (voice vector)
+     
+     (loop for i from 0 to nv-1 do                    ;get the first notes 
+          (setf (aref tonvec i) (nth 0 (segment-list (aref vvec i))))       
+          (setf (aref ndrvec i) (get-var (aref tonvec i) 'ndr))
+          (setf (aref fracvec i) (get-note-value-fraction-segment (aref tonvec i)))) ; new, get note value fraction 
+
+     (setq *all-notes* nil)          ;build *all-notes*
+     (loop for i from 0 to nv-1 do
+          (newr *all-notes* (cons (aref vvec i) (aref nvec i)) ))
+     (setq *cur-notes* *all-notes*)
+     
+     (untilexit end
+                
+        (setq drmin 32000)    ;compute the *ndr-to-next* value 
+        (loop for i from 0 to nv-1 do             ;find the smallest duration
+             (cond ((> drmin (aref ndrvec i))
+                    (setq drmin (aref ndrvec i))
+                    (setq fracmin (aref fracvec i)) ;new
+                    (setq vnr i) )))
+        (setq *ndr-to-next* drmin)
+        (setq *note-fraction-to-next* fracmin)      ;new
+        
+        ,@body
+                
+        (setq vnr 0)
+        (setq drmin 32000)
+        (loop for i from 0 to nv-1 do             ;find the smallest duration
+             (cond ((> drmin (aref ndrvec i))
+                    (setq drmin (aref ndrvec i))
+                    (setq fracmin (aref fracvec i)) ;new
+                    (setq vnr i) )))
+        (setq vnrlst ())              ;the list of voice indexes w/ smallest dr
+        (loop for i from 0 to nv-1 do             ;flera toner samtidigt?
+             (cond ((= (round drmin) (round (aref ndrvec i)))
+                    (setq vnrlst (append1 vnrlst i)) )))
+        (loop for i from 0 to nv-1 do             ;minska alla ndr med drmin
+             (setf (aref ndrvec i) (- (aref ndrvec i) drmin))
+             (setf (aref fracvec i) (- (aref fracvec i) fracmin))   ;new
+             )
+        
+        (dolist (vnr vnrlst)           ;for all new notes
+                 (setf (aref nvec vnr) (1+ (aref nvec vnr))) ;incr. note-counter
+                 (ifn (= (length (segment-list (aref vvec vnr))) ;if not 1+last
+                         (aref nvec vnr) )  
+                      (setf (aref tonvec vnr) (nth (aref nvec vnr) (segment-list (aref vvec vnr))))
+                      (return-from end) )      
+                 (setf (aref ndrvec vnr) (get-var (aref tonvec vnr) 'ndr))
+                 (setf (aref fracvec vnr) (get-note-value-fraction-segment (aref tonvec vnr))) ;new
+                 )
+        
+        (setq *cur-notes* nil)          ;build *cur-notes*
+        (dolist (vnr vnrlst)           ;for all new notes
+                 (newr *cur-notes* 
+                       (cons (aref vvec vnr) (aref nvec vnr)) ))
+        (setq *all-notes* nil)          ;build *all-notes*
+        (loop for i from 0 to nv-1 do
+             (newr *all-notes* (cons (aref vvec i) (aref nvec i)) ))
+        )))
 
 ;step one bar in the voices in parallel
 ;*cur-notes* holds a  list of the current notes
