@@ -14,6 +14,7 @@
 ;;971117/af converted to DM 2
 ;;20010402/af general normalized functions for the shapes allowed
 ;;20010414/af negative value for 'turn gives position from the last onset backwards in ms
+;;20220711 Changed the default curve shape to hand gesture - FINALLY - note that previously defined palettes with phrasing will give a slighly different result
 
 (in-package :dm)
 
@@ -30,7 +31,8 @@
 (defun phrase-ritardando 
     (quant &key (shape :x2) (power 3.5) (amp 2) (phlevel 4)
            (next 1.5) (2next 2) (turn -2500) (last 1) (acc 0)
-           (accfn 'power-fn-acc) (decfn 'power-fn-dec) )
+           ;(accfn 'power-fn-acc) (decfn 'power-fn-dec)
+           (accfn 'hand-gesture-fn-acc) (decfn 'hand-gesture-fn-dec) ) ;new default!
   (phrase-arch quant :shape shape :power power :amp amp :phlevel phlevel
                :next next :2next 2next
                :turn turn :acc acc :last last
@@ -42,7 +44,8 @@
 (defun phrase-arch 
        (quant &key (shape :x2) (power 2) (amp 1) (dur 1) (phlevel 7)
               (next 1) (2next 1) (turn 2) (last 1) (acc 1)
-              (accfn 'power-fn-acc) (decfn 'power-fn-dec) )
+             ; (accfn 'power-fn-acc) (decfn 'power-fn-dec)
+              (accfn 'hand-gesture-fn-acc) (decfn 'hand-gesture-fn-dec) ) ;new default!
   (if (not (check-for-phrase-marks))
     (print-ll "Phrase-arch : no phrase marks - skipping rule")
     (progn 
