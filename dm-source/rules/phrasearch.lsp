@@ -28,6 +28,7 @@
 ;-------------baroque phrasing-----------------------------------------
 ;;an attempt to set parameters for the phrase-arch rule so
 ;;that only a ritardando is performed in the end of each, presumably long phrase
+#|
 (defun phrase-ritardando 
     (quant &key (shape :x2) (power 3.5) (amp 2) (phlevel 4)
            (next 1.5) (2next 2) (turn -2500) (last 1) (acc 0)
@@ -38,14 +39,51 @@
                :turn turn :acc acc :last last
                :accfn accfn :decfn decfn)
   )
+|#
+
+;; 220902 also keywords for functions are allowed
+;; back to original default
+(defun phrase-ritardando 
+       (quant &key (shape :x2) (power 3.5) (amp 2) (phlevel 4)
+              (next 1.5) (2next 2) (turn -2500) (last 1) (acc 0)
+              (accfn :powerfn) (decfn :powerfn) ) 
+  (phrase-arch quant :shape shape :power power :amp amp :phlevel phlevel
+               :next next :2next 2next
+               :turn turn :acc acc :last last
+               :accfn accfn :decfn decfn)
+  )
 
 ;-------------main function-----------------------------------------
-
+#|
 (defun phrase-arch 
        (quant &key (shape :x2) (power 2) (amp 1) (dur 1) (phlevel 7)
               (next 1) (2next 1) (turn 2) (last 1) (acc 1)
              ; (accfn 'power-fn-acc) (decfn 'power-fn-dec)
               (accfn 'hand-gesture-fn-acc) (decfn 'hand-gesture-fn-dec) ) ;new default!
+  (if (not (check-for-phrase-marks))
+    (print-ll "Phrase-arch : no phrase marks - skipping rule")
+    (progn 
+      ;(print-ll " shape" shape " power " power  " amp " amp " phlevel "  phlevel " next " next "turn " turn last acc)
+
+      (phrase-arch-mark-ddr 
+       (abs quant) phlevel :shape shape :power power :ampscale amp 
+       :nextboundscale next :2nextboundscale 2next
+       :turnpos turn :startqscale acc :lastnote last
+       :accfn accfn :decfn decfn)
+      (phrase-arch-apply quant :dur dur)
+      (rem-all 'ddr)
+      (rem-all 'dl0)
+      )))
+|#
+
+;; 220902 also keywords for functions
+;; back to original default, default phlevel changed to 6
+(defun phrase-arch 
+       (quant &key (shape :x2) (power 2) (amp 1) (dur 1) (phlevel 6)
+              (next 1) (2next 1) (turn 2) (last 1) (acc 1)
+             (accfn :powerfn) (decfn :powerfn) )
+  (when (keywordp accfn) (setq accfn (phrase-arch-curve-to-fn-acc accfn))) ;translate keyword to function name
+  (when (keywordp decfn) (setq decfn (phrase-arch-curve-to-fn-dec decfn)))
   (if (not (check-for-phrase-marks))
     (print-ll "Phrase-arch : no phrase marks - skipping rule")
     (progn 
@@ -418,6 +456,26 @@
                 (then (print (multiple-value-list (i?phrase-rel-length 0 5 factor))))))
 |#
 
+;;220902 translates the keyword names to function names
+(defun phrase-arch-curve-to-fn-acc (keyword)
+  (let ((function nil))
+    (cond
+      ((equal :powerfn keyword) (setq function 'power-fn-acc))
+      ((equal :runrit keyword) (setq function 'runrit-fn-acc))
+      ((equal :handgest keyword) (setq function 'hand-gesture-fn-acc))
+      (t (error "not valid keyword in function phrase-arch-curve-to-fn-acc")) )
+    function
+    ))
+
+(defun phrase-arch-curve-to-fn-dec (keyword)
+  (let ((function nil))
+    (cond
+      ((equal :powerfn keyword) (setq function 'power-fn-dec))
+      ((equal :runrit keyword) (setq function 'runrit-fn-dec))
+      ((equal :handgest keyword) (setq function 'hand-gesture-fn-dec))
+      (t (error "not valid keyword in function phrase-arch-curve-to-fn-dec")) )
+    function
+    ))
 
 ;;----------- phrase shape functions --------------------------
 

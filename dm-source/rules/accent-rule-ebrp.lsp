@@ -347,11 +347,15 @@
 
 
 ;;FUNCTIONS used for the shape of accents:
+
 ;;----power function
+;; defined in phrase-arch
+#|
 (defun power-fn-dec (x power)
   (expt x power))
 (defun power-fn-acc (x power)
   (abs (expt (- x 1) power)))
+|#
 
 
 ;;----gaussian
