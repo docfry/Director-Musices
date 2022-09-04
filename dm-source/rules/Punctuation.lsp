@@ -8,6 +8,7 @@
 ;;
 ;;971117/af converted to DM 2.0
 ;;000627/af punct-apply changed to exclude note before rest
+;;220904 Improved the marking of phrase level 7
 
 (in-package :dm)
 (export '())
@@ -22,14 +23,12 @@
     (punct-apply quant :dur dur :duroff duroff) )
    ((equal marker :ampdip)
     (punct-apply-dip quant) )
-   (t
-    (error "unknown marker value: ~A (defined marker values:  :pause, :ampdip)" marker ) )
-   )
+   (t (error "unknown marker value: ~A (defined marker values:  :pause, :ampdip)" marker ) ))
+
   (if markphlevel7 (mark-phrase7-from-punct))
   (if (not *rule-debug-info*) (rem-all :punct))
   (if (not *rule-debug-info*) (rem-all :weight))
-  (rem-all 'leap)
-)
+  (rem-all 'leap) )
 
 ;make the punctuation according to the marks by lasse
 (defun punctuation-lf (q)
@@ -53,6 +52,7 @@
 
 ;----- marking of phrase level 7 --------------
 
+#|
 (defun mark-phrase7-from-punct ()
   (each-note
     (when (not (this 'rest))
@@ -73,14 +73,16 @@
         (until (not (iget i 'rest)) (decf i))
         (iadd-phrase-end-level i 7)
         ))) )
+|#
 
 ;;181226/af new version fixing a bug with rests in the end
+#|
 (defun mark-phrase7-from-punct ()
-  (each-note
+  (each-note  ;first note
     (when (not (this 'rest))
       (iadd-phrase-start-level *i* 7)
       (exit-track) ))
-  (each-note-if
+  (each-note-if ;all marked notes
     (this :weight)
     (then
       (iadd-phrase-end-level *i* 7)
@@ -89,28 +91,69 @@
           (until (not (iget i 'rest)) (incf i))
           (iadd-phrase-start-level i 7) )
         )))
-  (each-note-if
+  (each-note-if ;last note
     (last?)
     (then
       (let ((i *i*))
         (until (not (iget i 'rest)) (decf i))
         (iadd-phrase-end-level i 7)
         ))) )
-    
+|#
 
+;;220904 Added phrase marks also for the last group
+(defun mark-phrase7-from-punct ()
+  (each-note  ;first note
+    (when (not (this 'rest))
+      (iadd-phrase-start-level *i* 7)
+      (exit-track) ))
+  (each-note-if ;all marked notes
+    (this :weight)
+    (then
+      (iadd-phrase-end-level *i* 7)
+      (when (or (i?next *i* :weight) (i?next *i* 'f0)) ;also for the last group
+        (let ((i (+ *i* 1)))
+          (until (not (iget i 'rest)) (incf i))
+          (iadd-phrase-start-level i 7) )
+        )))
+  (each-note-if ;last note
+    (last?)
+    (then
+      (let ((i *i*))
+        (until (not (iget i 'rest)) (decf i))
+        (iadd-phrase-end-level i 7)
+        ))) )
+
+#|
 (defun iadd-phrase-start-level (i level)
   (if (and (iget i 'phrase-start) 
            (not (member level (iget i 'phrase-start))) )
     (iset i 'phrase-start (append (iget i 'phrase-start) (list level)))
     (iset i 'phrase-start (list level))
     ))
-
+|#
+;220904 fixed a bug that made an error after applying it twice
+(defun iadd-phrase-start-level (i level)
+  (cond  ((and (iget i 'phrase-start) 
+               (not (member level (iget i 'phrase-start))) )
+          (iset i 'phrase-start (append (iget i 'phrase-start) (list level))) )
+         ((not (iget i 'phrase-start))
+          (iset i 'phrase-start (list level)) )
+         ))
+#|
 (defun iadd-phrase-end-level (i level)
   (if (and (iget i 'phrase-end) 
            (not (member level (iget i 'phrase-end))) )
     (iset i 'phrase-end (append (iget i 'phrase-end) (list level)))
     (iset i 'phrase-end (list level))
     ))
+|#
+(defun iadd-phrase-end-level (i level)
+  (cond  ((and (iget i 'phrase-end) 
+               (not (member level (iget i 'phrase-end))) )
+          (iset i 'phrase-end (append (iget i 'phrase-end) (list level))) )
+         ((not (iget i 'phrase-end))
+          (iset i 'phrase-end (list level)) )
+         ))
 
 ;-------utilities-----------
 

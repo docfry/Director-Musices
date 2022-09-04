@@ -401,6 +401,7 @@
   (each-track-all-tracks
   (each-note
     (rem-this 'sl)
+    (rem-this 'nsl) ;220805 added this, not sure why nsl was preserved before
     (rem-this 'dr)
     (rem-this 'dro)
     (rem-this 'ndr)
