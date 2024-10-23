@@ -15,6 +15,7 @@
 ;;20010402/af general normalized functions for the shapes allowed
 ;;20010414/af negative value for 'turn gives position from the last onset backwards in ms
 ;;20220711 Changed the default curve shape to hand gesture - FINALLY - note that previously defined palettes with phrasing will give a slighly different result
+;;20220902 Changed back to old default (by some reason)
 
 (in-package :dm)
 
@@ -199,8 +200,8 @@
 ;;----------- apply -------------------------
 
 (defun phrase-arch-apply (quant &key dur)
-  ;(print-ll " dur " dur)
   (each-note
+  ;(print-ll " ddr " (this 'ddr))
     (if (this 'ddr)
       (if (minusp quant)
         (set-this 'dr (* (this 'dr) (- 1.0 (* dur (this 'ddr)))))
