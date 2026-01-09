@@ -120,6 +120,7 @@
         "dm:rules;accent-rule-ebrp"
         "dm:rules;accent-analysis"
         "dm:rules;dynamic-accent-model"
+        "dm:rules;dynamic-accent-model-svr"
         ;"piano"
         ;"accents" 
         
