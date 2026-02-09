@@ -255,6 +255,14 @@
     (if *rule-debug-info* (print-ll *i* "   " (this 'n)))
     (if *rule-debug-info* (print (i?next-boundlevel *i* *boundary-end-name* boundlevel)))
 )))
+(defun foo (boundlevel)
+  (each-note-if
+    (this *boundary-start-name*)
+    (member boundlevel (this *boundary-start-name*))
+    (then
+      (print-ll *i* "   " (this 'n))
+      (print (i?next-boundlevel *i* *boundary-end-name* boundlevel))
+)))
 |#
 
 #|
