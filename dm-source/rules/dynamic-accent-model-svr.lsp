@@ -4,6 +4,7 @@
 ;; 251128 started (with chatGPT)
 ;; 251205 working fine. However, the libs below must be loaded before the file. Then the svr model is loaded automatically *** THIS WILL NOT WORK IN ABCL since the make-dm1 file is not used***
 ;; 251210 new self-contained version for running the model.  libs only needed for model transfer from matlab.
+;; 260420 Added top-top level rule melodic dynamics
 
 (in-package :dm)
 
@@ -38,6 +39,13 @@
 ;; ------- Main function -----------------------
 ;; ---------------------------------------------
 
+(defun integrated-dynamics (quant &key (model :svr) (pitch 1)(timing 1)(meter 1) (phrasing 1) (high-loud 1))
+  "Performance rule for an integrated model of melodic dynamics including both rules and features" 
+  (case model
+      (:svr   (dynamic-accent-jf2023-svr quant :pitch pitch :timing timing :phrasing phrasing :meter meter :high-loud high-loud))
+      (:mlr   (dynamic-accent-jf2023-mlr quant :pitch pitch :timing timing :phrasing phrasing :meter meter :high-loud high-loud))
+      (t (warn "melodic-dynamics: wrong model name"))
+      ))
 
 ; with scaling of groups
 ; for testing: (dynamic-accent-jf2023-svr 1 :pitch 1 :timing 1 :meter 1 :phrasing 1 :high-loud 1)
@@ -45,7 +53,8 @@
   "Performance rule for dynamic accent model." 
   (if (not *svr-model*) (setq *svr-model* (alist-to-hash *svr-model-alist*)))
   (mark-dynamic-accent-jf2023-svr :pitch pitch :timing timing :phrasing phrasing :meter meter :high-loud high-loud)
-  (apply-sl-accent-svr quant) )
+  (apply-sl-accent-svr quant)
+  (rem-all :sl-accent-svr) )
 ;
 (defun apply-sl-accent-svr (quant)
   "Apply the computed accent value to SL."

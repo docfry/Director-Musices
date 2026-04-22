@@ -23,7 +23,8 @@
 ; for testing: (dynamic-accent-jf2023-mlr 1 :pitch 1 :timing 1 :meter 1 :phrasing 1 :high-loud 1)
 (defun dynamic-accent-jf2023-mlr (quant &key (pitch 1)(timing 1)(meter 1) (phrasing 1) (high-loud 1))
   (mark-dynamic-accent-jf2023-mlr :pitch pitch :timing timing :phrasing phrasing :meter meter :high-loud high-loud)
-  (apply-sl-accent-mlr quant) )
+  (apply-sl-accent-mlr quant)
+  (rem-all :sl-accent-mlr))
 
 ;apply the computed accent value to SL
 (defun apply-sl-accent-mlr (quant)
@@ -190,7 +191,7 @@ R2 adj = 0.600
 ;; Will mark the complete set of 48 features as described in Jones-Friberg 2023
 ;; Would be nice to remove merge-all-ties-and-rests but it seems difficult, see optimize-mel-accent-model-4.lsp
 (defun mark-48-accent-features ()
-  (print-ll "Warning: mark-48-accent-features may change the score structure and will add 48 features, Thus do not save the score afterwards")
+  (print-ll "Warning: mark-48-accent-features may change the score structure (merging ties and rests), Thus do not save the score afterwards")
   (print-ll "Warning: It also write phrase marks on level 7, thus level 7 can not be used for phrasing")
   ; initial markings
   (merge-all-ties-and-rests) ;can be destructive!, defined in initconvert.lsp, moved earlier, mark-all-metrical-features works?
