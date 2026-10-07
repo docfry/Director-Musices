@@ -44,7 +44,7 @@
   (case model
       (:svr   (dynamic-accent-jf2023-svr quant :pitch pitch :timing timing :phrasing phrasing :meter meter :high-loud high-loud))
       (:mlr   (dynamic-accent-jf2023-mlr quant :pitch pitch :timing timing :phrasing phrasing :meter meter :high-loud high-loud))
-      (t (warn "melodic-dynamics: wrong model name"))
+      (t (warn "integrated-dynamics: wrong model name"))
       ))
 
 ; with scaling of groups
