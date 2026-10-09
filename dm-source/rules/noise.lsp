@@ -1,6 +1,7 @@
 ;;Random variations in IOI and sound level
 ;;Models variations found in the litterature from the internal 'clock' and from motor control.
 ;;Developed by Friberg, Bresin and Juslin starting in 1999
+;;201126/af Added internal sync included for the noise rule
 
 
 (in-package :dm)
